@@ -70,9 +70,9 @@ export default function Sidebar({ darkMode, activePage }) {
           <span className="ml-3 font-medium text-sm opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap overflow-hidden">Team Chat</span>
           <span className="ml-auto opacity-0 group-hover:opacity-100 transition-opacity bg-red-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full min-w-[1.25rem] text-center">3</span>
         </Link>
-        <SidebarItem icon={FolderKanban} label="Projects" active={activePage === 'projects'} darkMode={darkMode} />
+        {/* <SidebarItem icon={FolderKanban} label="Projects" active={activePage === 'projects'} darkMode={darkMode} />
         <SidebarItem icon={Users} label="Team Members" darkMode={darkMode} />
-        <SidebarItem icon={Settings} label="Settings" darkMode={darkMode} />
+        <SidebarItem icon={Settings} label="Settings" darkMode={darkMode} /> */}
 
         {/* Divider */}
         <div className={`my-4 mx-4 border-t transition-colors duration-300 ${darkMode ? 'border-[#171717]' : 'border-gray-200'}`}></div>
