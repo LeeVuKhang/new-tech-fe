@@ -2,7 +2,7 @@
  * Reusable Sidebar Item Component
  */
 export default function SidebarItem({ icon: Icon, label, active = false, hasNotification = false, badgeCount = 0, darkMode, onClick }) {
-  const className = `w-full flex items-center px-3 py-3 rounded-lg transition-all duration-200 group/item relative ${
+  const className = `w-full flex items-center justify-center group-hover:justify-start group-hover:px-3 py-3 rounded-lg transition-all duration-200 group/item relative ${
     active 
       ? darkMode
         ? 'bg-[#171717] text-white' 
@@ -17,7 +17,9 @@ export default function SidebarItem({ icon: Icon, label, active = false, hasNoti
       onClick={onClick}
     >
       <Icon size={20} className={`flex-shrink-0 ${active ? '' : `${darkMode ? 'text-gray-500' : 'text-gray-500'}`}`} />
-      <span className="ml-3 font-medium text-sm opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap overflow-hidden">{label}</span>
+      <span className="hidden group-hover:block ml-3 font-medium text-sm opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap overflow-hidden">
+        {label}
+      </span>
       {hasNotification && (
         <span className="w-2 h-2 rounded-full bg-red-500 absolute top-2 left-2 opacity-100 group-hover:opacity-0"></span>
       )}
