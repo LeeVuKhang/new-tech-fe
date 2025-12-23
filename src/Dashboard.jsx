@@ -5,6 +5,8 @@ import toast from 'react-hot-toast';
 import { useQueryClient } from '@tanstack/react-query';
 import * as teamApi from './services/teamApi';
 
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://new-tech-be.onrender.com/api/v1';
+
 /**
  * TEAM CARD COMPONENT
  */
@@ -106,7 +108,7 @@ export default function Dashboard() {
     const fetchTeams = async () => {
       try {
         console.log('=== FRONTEND: Fetching teams ===');
-        const response = await fetch('http://localhost:5000/api/v1/teams', {
+        const response = await fetch(`${API_BASE_URL}/teams`, {
           method: 'GET',
           credentials: 'include',
           headers: {

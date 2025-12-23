@@ -7,7 +7,7 @@
  * - All endpoints validate user permissions on the backend
  */
 
-const API_BASE_URL = 'http://localhost:5000/api/v1';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://new-tech-be.onrender.com/api/v1';
 
 /**
  * Generic fetch wrapper with error handling

@@ -39,7 +39,7 @@ export default defineConfig({
         runtimeCaching: [
           {
             // Cache API responses (team, project, task data)
-            urlPattern: /^https?:\/\/localhost:5000\/api\/.*/i,
+            urlPattern: /^https?:\/\/new-tech-be\.onrender\.com\/api\/.*/i,
             handler: 'NetworkFirst',
             options: {
               cacheName: 'api-cache',

@@ -4,7 +4,7 @@
  * Note: Real-time messaging uses Socket.io, REST is fallback/initial load
  */
 
-const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:5000/api/v1';
+const API_BASE = import.meta.env.VITE_API_BASE_URL || 'https://new-tech-be.onrender.com/api/v1';
 
 /**
  * Fetch all channels for a team
