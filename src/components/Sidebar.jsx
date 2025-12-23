@@ -39,7 +39,7 @@ export default function Sidebar({ darkMode, activePage }) {
     >
       {/* Navigation */}
       <nav className={`flex-1 px-3 py-6 space-y-1 overflow-y-auto overflow-x-hidden ${scrollbarClass}`}>
-        <Link to="/dashboard" className={`w-full flex items-center justify-center group-hover:justify-start group-hover:px-3 py-3 rounded-lg transition-all duration-200 group/item relative ${
+        <Link to="/dashboard" className={`w-full flex items-center px-3 py-3 rounded-lg transition-all duration-200 group/item relative ${
           activePage === 'dashboard'
             ? darkMode
               ? 'bg-[#171717] text-white' 
@@ -49,7 +49,7 @@ export default function Sidebar({ darkMode, activePage }) {
           <LayoutDashboard size={20} className="flex-shrink-0" />
           <span className="ml-3 font-medium text-sm opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap overflow-hidden">Dashboard</span>
         </Link>
-        <Link to="/my-tasks" className={`w-full flex items-center justify-center group-hover:justify-start group-hover:px-3 py-3 rounded-lg transition-all duration-200 group/item relative ${
+        <Link to="/my-tasks" className={`w-full flex items-center px-3 py-3 rounded-lg transition-all duration-200 group/item relative ${
           activePage === 'my-tasks'
             ? darkMode
               ? 'bg-[#171717] text-white' 
@@ -59,7 +59,7 @@ export default function Sidebar({ darkMode, activePage }) {
           <CheckSquare size={20} className="flex-shrink-0" />
           <span className="ml-3 font-medium text-sm opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap overflow-hidden">My Tasks</span>
         </Link>
-        <Link to={chatLink} className={`w-full flex items-center justify-center group-hover:justify-start group-hover:px-3 py-3 rounded-lg transition-all duration-200 group/item relative ${
+        <Link to={chatLink} className={`w-full flex items-center px-3 py-3 rounded-lg transition-all duration-200 group/item relative ${
           activePage === 'chat'
             ? darkMode
               ? 'bg-[#171717] text-white' 
