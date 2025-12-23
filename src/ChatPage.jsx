@@ -480,27 +480,41 @@ export default function ChatPage() {
 
   /**
    * Initialize Socket connection on mount
+   * Note: Socket is initialized in Layout.jsx for global notifications
+   * Here we just get the existing socket and set up local listeners
    */
   useEffect(() => {
-    console.log('[ChatPage] Initializing Socket connection...');
-    const socket = initSocket();
+    console.log('[ChatPage] Setting up Socket listeners...');
+    const socket = initSocket(); // Returns existing socket if already connected
     
-    socket.on('connect', () => {
+    const onConnect = () => {
       console.log('[ChatPage] Socket connected successfully!');
       setIsConnected(true);
-    });
+    };
     
-    socket.on('disconnect', () => {
+    const onDisconnect = () => {
       console.log('[ChatPage] Socket disconnected');
       setIsConnected(false);
-    });
+    };
     
-    socket.on('connect_error', (error) => {
+    const onConnectError = (error) => {
       console.error('[ChatPage] Socket connection error:', error.message);
-    });
+    };
+
+    // If already connected, set state immediately
+    if (socket.connected) {
+      setIsConnected(true);
+    }
+
+    socket.on('connect', onConnect);
+    socket.on('disconnect', onDisconnect);
+    socket.on('connect_error', onConnectError);
 
     return () => {
-      disconnectSocket();
+      // Only remove ChatPage-specific listeners, don't disconnect socket
+      socket.off('connect', onConnect);
+      socket.off('disconnect', onDisconnect);
+      socket.off('connect_error', onConnectError);
     };
   }, []);
 

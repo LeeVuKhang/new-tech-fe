@@ -1,11 +1,24 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
 import Sidebar from './components/Sidebar';
 import Header from './components/Header';
+import { initSocket, disconnectSocket } from './services/socketService';
 
 export default function Layout() {
   const [isDarkMode, setDarkMode] = useState(false);
   const location = useLocation();
+
+  // Initialize socket connection when Layout mounts (user is authenticated)
+  // This ensures notifications work on ALL pages, not just ChatPage
+  useEffect(() => {
+    console.log('[Layout] Initializing Socket for real-time notifications...');
+    const socket = initSocket();
+
+    return () => {
+      // Only disconnect when Layout unmounts (user logs out)
+      // Note: We don't disconnect here to keep socket alive across page navigations
+    };
+  }, []);
 
   // Determine active page based on route
   const getActivePage = () => {
