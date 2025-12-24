@@ -149,7 +149,7 @@ export default function Sidebar({ darkMode, activePage }) {
         )}
       </nav>
 
-      <div className={`px-3 pt-2 pb-3 border-t transition-colors duration-300 ${darkMode ? 'border-[#171717]' : 'border-gray-200'}`}>
+      {/* <div className={`px-3 pt-2 pb-3 border-t transition-colors duration-300 ${darkMode ? 'border-[#171717]' : 'border-gray-200'}`}>
         <button 
           className={`w-full flex items-center px-3 py-3 rounded-lg transition-all ${darkMode ? 'hover:bg-[#1F1F1F] text-gray-400' : 'hover:bg-gray-100 text-gray-600'}`}
           title="Upgrade Plan"
@@ -159,7 +159,7 @@ export default function Sidebar({ darkMode, activePage }) {
             Upgrade Plan
           </span>
         </button>
-      </div>
+      </div> */}
     </aside>
   );
 }
