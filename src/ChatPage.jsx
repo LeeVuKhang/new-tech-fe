@@ -1012,12 +1012,9 @@ export default function ChatPage() {
 
         console.log('[ChatPage] Message(s) created with attachment:', result);
 
-        // Handle both single message and array of messages from backend
-        const newMessages = Array.isArray(result) ? result : [result];
-
-        // Add the new message(s) to the local state
-        // Note: Socket will also broadcast these, but we add them immediately for responsiveness
-        setMessages(prev => [...prev, ...newMessages]);
+        // Note: We don't add messages locally here
+        // The server broadcasts via Socket.IO and our onNewMessage listener will handle the update
+        // This prevents duplicate messages (CRITICAL: avoid adding to state twice)
 
         const fileCount = selectedFiles.length;
         toast.success(`${fileCount} file${fileCount > 1 ? 's' : ''} sent successfully!`);
