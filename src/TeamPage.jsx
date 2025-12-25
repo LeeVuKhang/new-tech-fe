@@ -28,6 +28,14 @@ import {
 import { useDebounce } from './hooks/useDebounce';
 import { useAuth } from './hooks/useAuth';
 import {
+  getSocket,
+  joinTeam,
+  leaveTeam,
+  onProjectCreated,
+  onProjectUpdated,
+  onProjectDeleted,
+} from './services/socketService';
+import {
   LayoutDashboard,
   FolderKanban,
   CheckCircle2,
@@ -2637,6 +2645,45 @@ export default function TeamPage() {
     enabled: !!teamId,
   });
 
+  // Real-time: Subscribe to team room for project updates
+  useEffect(() => {
+    const socket = getSocket();
+    if (!socket?.connected || !teamId) return;
+
+    // Join team room
+    joinTeam(teamId).catch(err => {
+      console.warn('Failed to join team room:', err.message);
+    });
+
+    // Subscribe to project events
+    const unsubCreated = onProjectCreated((project) => {
+      console.log('Project created:', project.name);
+      queryClient.invalidateQueries(['teamProjects', teamId]);
+      queryClient.invalidateQueries(['teamStats', teamId]);
+      toast.success(`New project created: ${project.name}`);
+    });
+
+    const unsubUpdated = onProjectUpdated((project) => {
+      console.log('Project updated:', project.name);
+      queryClient.invalidateQueries(['teamProjects', teamId]);
+    });
+
+    const unsubDeleted = onProjectDeleted(({ projectId }) => {
+      console.log('Project deleted:', projectId);
+      queryClient.invalidateQueries(['teamProjects', teamId]);
+      queryClient.invalidateQueries(['teamStats', teamId]);
+      toast.success('A project was deleted');
+    });
+
+    // Cleanup on unmount
+    return () => {
+      leaveTeam(teamId);
+      unsubCreated();
+      unsubUpdated();
+      unsubDeleted();
+    };
+  }, [teamId, queryClient]);
+
   // Revoke invitation mutation
   const revokeInvitationMutation = useMutation({
     mutationFn: (invitationId) => revokeInvitation(teamId, invitationId),
@@ -3187,10 +3234,10 @@ export default function TeamPage() {
                         key={pageNum}
                         onClick={() => setCurrentPage(pageNum)}
                         className={`min-w-[36px] h-9 px-3 rounded-lg text-sm font-medium transition-colors ${currentPage === pageNum
-                            ? 'bg-[#006239] text-white'
-                            : isDarkMode
-                              ? 'hover:bg-[#171717] text-gray-300'
-                              : 'hover:bg-gray-200 text-gray-600'
+                          ? 'bg-[#006239] text-white'
+                          : isDarkMode
+                            ? 'hover:bg-[#171717] text-gray-300'
+                            : 'hover:bg-gray-200 text-gray-600'
                           }`}
                       >
                         {pageNum}

@@ -3,6 +3,15 @@ import { useOutletContext, useParams, useNavigate } from 'react-router-dom';
 import * as projectApi from './services/projectApi';
 import * as riskReportApi from './services/riskReportApi';
 import { RiskReportCard } from './components/RiskReportCard';
+import toast from 'react-hot-toast';
+import {
+  getSocket,
+  joinProject,
+  leaveProject,
+  onTaskCreated,
+  onTaskUpdated,
+  onTaskDeleted,
+} from './services/socketService';
 import {
   CheckCircle2,
   Clock,
@@ -941,6 +950,43 @@ export default function ProjectPage() {
     fetchProjectData();
   }, [projectId]);
 
+  // Real-time: Subscribe to project room for task updates
+  useEffect(() => {
+    const socket = getSocket();
+    if (!socket?.connected || !projectId) return;
+
+    // Join project room
+    joinProject(projectId).catch(err => {
+      console.warn('Failed to join project room:', err.message);
+    });
+
+    // Subscribe to task events
+    const unsubCreated = onTaskCreated((newTask) => {
+      console.log('Task created:', newTask.title);
+      setTasks(prev => [newTask, ...prev]);
+      toast.success(`New task created: ${newTask.title}`);
+    });
+
+    const unsubUpdated = onTaskUpdated((updatedTask) => {
+      console.log('Task updated:', updatedTask.title);
+      setTasks(prev => prev.map(t => t.id === updatedTask.id ? updatedTask : t));
+    });
+
+    const unsubDeleted = onTaskDeleted(({ taskId }) => {
+      console.log('Task deleted:', taskId);
+      setTasks(prev => prev.filter(t => t.id !== taskId));
+      toast.success('A task was deleted');
+    });
+
+    // Cleanup on unmount
+    return () => {
+      leaveProject(projectId);
+      unsubCreated();
+      unsubUpdated();
+      unsubDeleted();
+    };
+  }, [projectId]);
+
   // Fetch AI risk report
   const fetchRiskReport = async () => {
     try {
@@ -1441,10 +1487,10 @@ export default function ProjectPage() {
                               key={pageNum}
                               onClick={() => setCurrentPage(pageNum)}
                               className={`min-w-[36px] h-9 px-3 rounded-lg text-sm font-medium transition-colors ${currentPage === pageNum
-                                  ? 'bg-[#006239] text-white'
-                                  : isDarkMode
-                                    ? 'hover:bg-[#171717] text-gray-300'
-                                    : 'hover:bg-gray-200 text-gray-600'
+                                ? 'bg-[#006239] text-white'
+                                : isDarkMode
+                                  ? 'hover:bg-[#171717] text-gray-300'
+                                  : 'hover:bg-gray-200 text-gray-600'
                                 }`}
                             >
                               {pageNum}
