@@ -2675,9 +2675,20 @@ export default function TeamPage() {
       toast.success('A project was deleted');
     });
 
+    // Subscribe to member changes
+    socket.on('member-joined', (data) => {
+      console.log('New member joined:', data);
+      if (data.teamId === parseInt(teamId)) {
+        queryClient.invalidateQueries(['teamMembers', teamId]);
+        queryClient.invalidateQueries(['teamStats', teamId]);
+        toast.success(`New member joined the team!`);
+      }
+    });
+
     // Cleanup on unmount
     return () => {
       leaveTeamSocket(teamId);
+      socket.off('member-joined');
       unsubCreated();
       unsubUpdated();
       unsubDeleted();
