@@ -14,7 +14,7 @@ const API_BASE = import.meta.env.VITE_API_BASE_URL || 'https://new-tech-be.onren
 export const fetchTeamChannels = async (teamId) => {
   const url = `${API_BASE}/teams/${teamId}/channels`;
   console.log('[channelApi] Fetching channels from:', url);
-  
+
   const response = await fetch(url, {
     credentials: 'include', // Include cookies for auth
   });
@@ -139,15 +139,15 @@ export const sendMessageREST = async (teamId, channelId, messageData) => {
  */
 export const sendMessageWithFiles = async (teamId, channelId, content, files) => {
   const formData = new FormData();
-  
+
   // Append message content (can be empty string if only files)
   formData.append('content', content || '');
-  
+
   // Append all files with field name 'files'
   files.forEach((file) => {
     formData.append('files', file);
   });
-  
+
   const response = await fetch(`${API_BASE}/teams/${teamId}/channels/${channelId}/messages`, {
     method: 'POST',
     credentials: 'include',
@@ -218,7 +218,7 @@ export const deleteChannel = async (teamId, channelId) => {
   if (contentType && contentType.includes('application/json')) {
     return response.json();
   }
-  
+
   // If no JSON content, return success
   return { success: true };
 };
@@ -248,4 +248,27 @@ export const fetchChannelLinks = async (teamId, channelId, options = {}) => {
 
   const data = await response.json();
   return data.data || [];
+};
+
+/**
+ * Withdraw (soft-delete) a message
+ * Replaces message content with "This message has been withdrawn."
+ * @param {number} teamId 
+ * @param {number} channelId 
+ * @param {number} messageId 
+ * @returns {Promise<Object>} Updated message
+ */
+export const withdrawMessage = async (teamId, channelId, messageId) => {
+  const response = await fetch(`${API_BASE}/teams/${teamId}/channels/${channelId}/messages/${messageId}`, {
+    method: 'DELETE',
+    credentials: 'include',
+  });
+
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({ message: 'Failed to withdraw message' }));
+    throw new Error(error.message || 'Failed to withdraw message');
+  }
+
+  const data = await response.json();
+  return data;
 };

@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useLayoutEffect, useRef, useCallback } from 'react';
 import { useOutletContext, useParams, useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
+import EmojiPicker from 'emoji-picker-react';
 import {
   Hash,
   Volume2,
@@ -32,7 +33,7 @@ import {
   Music,
   Play
 } from 'lucide-react';
-import { fetchTeamChannels, fetchChannelMessages, createChannel, searchMessages, deleteChannel, sendMessageWithFiles, fetchChannelLinks } from './services/channelApi.js';
+import { fetchTeamChannels, fetchChannelMessages, createChannel, searchMessages, deleteChannel, sendMessageWithFiles, fetchChannelLinks, withdrawMessage } from './services/channelApi.js';
 import { getTeamProjects, getTeam } from './services/projectApi.js';
 import { useDebounce } from './hooks/useDebounce.js';
 import { useAuth } from './hooks/useAuth.js';
@@ -100,7 +101,7 @@ const getFileNameFromUrl = (url) => {
 const getFileTypeFromUrl = (url) => {
   if (!url) return 'file';
   const extension = url.split('.').pop()?.toLowerCase().split('?')[0] || '';
-  
+
   const imageExts = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg', 'bmp', 'ico'];
   const videoExts = ['mp4', 'webm', 'mov', 'avi', 'mkv', 'wmv', 'flv'];
   const audioExts = ['mp3', 'wav', 'ogg', 'flac', 'aac', 'm4a'];
@@ -109,7 +110,7 @@ const getFileTypeFromUrl = (url) => {
   const presentationExts = ['ppt', 'pptx'];
   const archiveExts = ['zip', 'rar', '7z', 'tar', 'gz'];
   const codeExts = ['js', 'ts', 'jsx', 'tsx', 'py', 'java', 'c', 'cpp', 'h', 'css', 'html', 'json', 'xml', 'sql', 'sh', 'yml', 'yaml'];
-  
+
   if (imageExts.includes(extension)) return 'image';
   if (videoExts.includes(extension)) return 'video';
   if (audioExts.includes(extension)) return 'audio';
@@ -191,25 +192,21 @@ const DeleteChannelModal = ({
 
         {/* Modal Body */}
         <div className="p-6 space-y-4">
-          <div className={`p-4 rounded-lg border-2 ${
-            isDarkMode ? 'bg-red-500/10 border-red-500/30' : 'bg-red-50 border-red-200'
-          }`}>
+          <div className={`p-4 rounded-lg border-2 ${isDarkMode ? 'bg-red-500/10 border-red-500/30' : 'bg-red-50 border-red-200'
+            }`}>
             <div className="flex items-start gap-3">
               <AlertCircle className="text-red-500 flex-shrink-0 mt-0.5" size={20} />
               <div>
-                <h4 className={`font-bold text-sm mb-1 ${
-                  isDarkMode ? 'text-red-400' : 'text-red-600'
-                }`}>
+                <h4 className={`font-bold text-sm mb-1 ${isDarkMode ? 'text-red-400' : 'text-red-600'
+                  }`}>
                   Warning: This action cannot be undone
                 </h4>
-                <p className={`text-sm ${
-                  isDarkMode ? 'text-red-300' : 'text-red-500'
-                }`}>
+                <p className={`text-sm ${isDarkMode ? 'text-red-300' : 'text-red-500'
+                  }`}>
                   Are you sure you want to delete <span className="font-bold">#{channelName}</span>?
                 </p>
-                <p className={`text-xs mt-2 ${
-                  isDarkMode ? 'text-red-300' : 'text-red-500'
-                }`}>
+                <p className={`text-xs mt-2 ${isDarkMode ? 'text-red-300' : 'text-red-500'
+                  }`}>
                   All messages and files in this channel will be permanently deleted.
                 </p>
               </div>
@@ -221,11 +218,10 @@ const DeleteChannelModal = ({
             <button
               type="button"
               onClick={onCancel}
-              className={`flex-1 px-4 py-2.5 rounded-lg font-medium border transition-colors ${
-                isDarkMode 
-                  ? 'border-[#333] text-gray-300 hover:bg-[#171717]' 
-                  : 'border-gray-300 text-gray-700 hover:bg-gray-50'
-              }`}
+              className={`flex-1 px-4 py-2.5 rounded-lg font-medium border transition-colors ${isDarkMode
+                ? 'border-[#333] text-gray-300 hover:bg-[#171717]'
+                : 'border-gray-300 text-gray-700 hover:bg-gray-50'
+                }`}
               disabled={isDeleting}
             >
               Cancel
@@ -233,11 +229,10 @@ const DeleteChannelModal = ({
             <button
               type="button"
               onClick={onConfirm}
-              className={`flex-1 px-4 py-2.5 rounded-lg font-medium text-white transition-colors flex items-center justify-center gap-2 ${
-                isDeleting 
-                  ? 'bg-gray-400 cursor-not-allowed' 
-                  : 'bg-red-500 hover:bg-red-600'
-              }`}
+              className={`flex-1 px-4 py-2.5 rounded-lg font-medium text-white transition-colors flex items-center justify-center gap-2 ${isDeleting
+                ? 'bg-gray-400 cursor-not-allowed'
+                : 'bg-red-500 hover:bg-red-600'
+                }`}
               disabled={isDeleting}
             >
               {isDeleting ? (
@@ -263,9 +258,9 @@ const DeleteChannelModal = ({
  * SUB-COMPONENT: Create Channel Modal
  * Extracted outside main component to prevent re-creation on every render
  */
-const CreateChannelModal = ({ 
-  isModalOpen, 
-  modalContext, 
+const CreateChannelModal = ({
+  isModalOpen,
+  modalContext,
   availableProjects,
   newChannelName,
   setNewChannelName,
@@ -274,7 +269,7 @@ const CreateChannelModal = ({
   isCreatingChannel,
   closeCreateChannelModal,
   handleCreateChannel,
-  isDarkMode 
+  isDarkMode
 }) => {
   if (!isModalOpen) return null;
 
@@ -302,13 +297,13 @@ const CreateChannelModal = ({
 
         {/* Modal Body */}
         <form onSubmit={handleCreateChannel} className="p-6 space-y-5">
-          
+
           {/* Belongs To Selector */}
           <div>
             <label className={`block text-sm font-semibold mb-2 ${textPrimary}`}>
               Belongs to
             </label>
-            
+
             <div className="relative">
               <select
                 value={selectedProjectId}
@@ -380,10 +375,10 @@ export default function ChatPage() {
   const { isDarkMode } = useOutletContext();
   const { teamId } = useParams();
   const navigate = useNavigate();
-  
+
   // Get current authenticated user
   const { user: currentUser, isLoading: isLoadingUser, isError: isAuthError } = useAuth();
-  
+
   // Redirect to login if not authenticated
   useEffect(() => {
     if (isAuthError) {
@@ -391,7 +386,7 @@ export default function ChatPage() {
       navigate('/login');
     }
   }, [isAuthError, navigate]);
-  
+
   // State
   const [channels, setChannels] = useState([]);
   const [activeChannel, setActiveChannel] = useState(null);
@@ -405,37 +400,41 @@ export default function ChatPage() {
   const [typingUsers, setTypingUsers] = useState([]);
   const [channelError, setChannelError] = useState(null);
   const [messageError, setMessageError] = useState(null);
-  
+
   // Modal state
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalContext, setModalContext] = useState(null); // { type: 'global' } or { type: 'project', projectId, projectName }
   const [newChannelName, setNewChannelName] = useState('');
   const [selectedProjectId, setSelectedProjectId] = useState('');
   const [isCreatingChannel, setIsCreatingChannel] = useState(false);
-  
+
   // Search state
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState([]);
   const [isSearching, setIsSearching] = useState(false);
   const debouncedSearchQuery = useDebounce(searchQuery, 500);
-  
+
   // Info sidebar state
   const [isInfoOpen, setIsInfoOpen] = useState(false);
   const [notificationsEnabled, setNotificationsEnabled] = useState(true);
-  
+
   // Delete channel modal state
   const [showDeleteChannelModal, setShowDeleteChannelModal] = useState(false);
   const [isDeletingChannel, setIsDeletingChannel] = useState(false);
-  
+
   // File attachment state
   const [selectedFiles, setSelectedFiles] = useState([]);
   const [isUploading, setIsUploading] = useState(false);
   const fileInputRef = useRef(null);
-  
+
   // Image preview modal state
   const [previewImage, setPreviewImage] = useState(null);
-  
+
+  // Emoji picker state
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+  const emojiPickerRef = useRef(null);
+
   // Derive channelFiles from messages with attachments (replaces mock data)
   const channelFiles = React.useMemo(() => {
     return messages
@@ -451,24 +450,24 @@ export default function ChatPage() {
       }))
       .reverse(); // Most recent first
   }, [messages]);
-  
+
   // Channel links state (fetched from API)
   const [channelLinks, setChannelLinks] = useState([]);
   const [isLoadingLinks, setIsLoadingLinks] = useState(false);
-  
+
   // Message link metadata (for inline previews)
   const [messageLinkMetadata, setMessageLinkMetadata] = useState({}); // { messageId: linkData }
-  
+
   // Team projects state (for dropdown in create channel modal)
   const [teamProjects, setTeamProjects] = useState([]);
-  
+
   // Team data state
   const [teamData, setTeamData] = useState(null);
-  
+
   // Pagination state
   const [hasMoreMessages, setHasMoreMessages] = useState(true);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
-  
+
   const messagesEndRef = useRef(null);
   const messagesContainerRef = useRef(null);
   const textareaRef = useRef(null);
@@ -479,6 +478,21 @@ export default function ChatPage() {
   const isInitialLoadRef = useRef(true); // Track if this is the first message load
 
   /**
+   * Close emoji picker when clicking outside
+   */
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (emojiPickerRef.current && !emojiPickerRef.current.contains(e.target)) {
+        setShowEmojiPicker(false);
+      }
+    };
+    if (showEmojiPicker) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [showEmojiPicker]);
+
+  /**
    * Initialize Socket connection on mount
    * Note: Socket is initialized in Layout.jsx for global notifications
    * Here we just get the existing socket and set up local listeners
@@ -486,17 +500,17 @@ export default function ChatPage() {
   useEffect(() => {
     console.log('[ChatPage] Setting up Socket listeners...');
     const socket = initSocket(); // Returns existing socket if already connected
-    
+
     const onConnect = () => {
       console.log('[ChatPage] Socket connected successfully!');
       setIsConnected(true);
     };
-    
+
     const onDisconnect = () => {
       console.log('[ChatPage] Socket disconnected');
       setIsConnected(false);
     };
-    
+
     const onConnectError = (error) => {
       console.error('[ChatPage] Socket connection error:', error.message);
     };
@@ -547,15 +561,15 @@ export default function ChatPage() {
             return { data: [] }; // Fallback to empty array if projects fail
           })
         ]);
-        
+
         console.log('[ChatPage] Received team:', teamDataResponse?.data);
         console.log('[ChatPage] Received channels:', channelsData);
         console.log('[ChatPage] Received projects:', projectsData);
-        
+
         setTeamData(teamDataResponse?.data);
         setChannels(channelsData);
         setTeamProjects(projectsData.data || []);
-        
+
         // Auto-select first channel if none selected
         if (channelsData.length > 0 && !activeChannel) {
           console.log('[ChatPage] Auto-selecting first channel:', channelsData[0]);
@@ -595,14 +609,14 @@ export default function ChatPage() {
       try {
         // Join new channel room for real-time updates
         await joinChannel(activeChannel.id);
-        
+
         // Fetch initial message history (last 20 messages for better scrolling)
         const data = await fetchChannelMessages(teamId, activeChannel.id, { limit: 20 });
         setMessages(data || []);
-        
+
         // If we got less than 20 messages, there are no more to load
         setHasMoreMessages(data && data.length === 20);
-        
+
         previousChannelRef.current = activeChannel.id;
       } catch (err) {
         console.error('Failed to load channel:', err);
@@ -623,11 +637,11 @@ export default function ChatPage() {
 
     setIsLoadingMore(true);
     isPaginatingRef.current = true; // Flag that we're paginating
-    
+
     try {
       // Get the oldest message ID as cursor
       const oldestMessageId = messages[0]?.id;
-      
+
       if (!oldestMessageId) {
         setHasMoreMessages(false);
         return;
@@ -642,7 +656,7 @@ export default function ChatPage() {
       if (olderMessages && olderMessages.length > 0) {
         // Prepend older messages to the beginning
         setMessages(prev => [...olderMessages, ...prev]);
-        
+
         // If we got less than 10, there are no more messages
         setHasMoreMessages(olderMessages.length === 10);
       } else {
@@ -665,7 +679,7 @@ export default function ChatPage() {
    */
   const handleScroll = useCallback((e) => {
     const container = e.target;
-    
+
     // Check if scrolled to top (with small threshold)
     if (container.scrollTop < 100 && hasMoreMessages && !isLoadingMore) {
       // Capture scroll height BEFORE loading new messages
@@ -679,13 +693,13 @@ export default function ChatPage() {
    */
   const handleFileSelect = (e) => {
     const files = Array.from(e.target.files || []);
-    
+
     // Validate file count
     if (selectedFiles.length + files.length > MAX_FILES) {
       toast.error(`Maximum ${MAX_FILES} files allowed per message`);
       return;
     }
-    
+
     // Validate each file
     const validFiles = [];
     for (const file of files) {
@@ -694,21 +708,21 @@ export default function ChatPage() {
         toast.error(`${file.name} is too large. Maximum size is 100MB`);
         continue;
       }
-      
+
       // Check file type
       if (!ALLOWED_FILE_TYPES.includes(file.type) && file.type !== '') {
         toast.error(`${file.name} has unsupported file type`);
         continue;
       }
-      
+
       validFiles.push(file);
     }
-    
+
     if (validFiles.length > 0) {
       setSelectedFiles(prev => [...prev, ...validFiles]);
       toast.success(`${validFiles.length} file(s) selected`);
     }
-    
+
     // Reset input
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
@@ -822,13 +836,13 @@ export default function ChatPage() {
     const loadMessageLinkMetadata = async () => {
       try {
         const links = await fetchChannelLinks(teamId, activeChannel.id);
-        
+
         // Create a map: messageId -> linkData
         const linkMap = {};
         links.forEach(link => {
           linkMap[link.message_id] = link;
         });
-        
+
         setMessageLinkMetadata(linkMap);
       } catch (err) {
         console.error('Failed to fetch message link metadata:', err);
@@ -929,7 +943,7 @@ export default function ChatPage() {
 
     // Check if container has scrollable content
     const hasScrollbar = container.scrollHeight > container.clientHeight;
-    
+
     if (!hasScrollbar) {
       // Container isn't scrollable, auto-load more messages
       loadMoreMessages();
@@ -940,7 +954,7 @@ export default function ChatPage() {
   // Categorize channels
   const generalChannels = channels.filter(c => !c.project_id);
   const projectChannels = channels.filter(c => c.project_id);
-  
+
   // Group project channels by project name and ID
   const groupedProjectChannels = projectChannels.reduce((acc, channel) => {
     const pName = channel.project_name;
@@ -966,13 +980,13 @@ export default function ChatPage() {
    */
   const handleSendMessage = useCallback(async (e) => {
     e.preventDefault();
-    
+
     const trimmedMessage = inputMessage.trim();
-    
+
     // Require either message text or files
     if (!trimmedMessage && selectedFiles.length === 0) return;
     if (!activeChannel || isSending) return;
-    
+
     if (trimmedMessage.length > MAX_MESSAGE_LENGTH) {
       toast.error(`Message too long. Maximum ${MAX_MESSAGE_LENGTH} characters allowed.`);
       return;
@@ -986,7 +1000,7 @@ export default function ChatPage() {
       // If files are attached, upload them via REST API (files go to S3)
       if (selectedFiles.length > 0) {
         console.log('[ChatPage] Uploading files to S3:', selectedFiles.map(f => f.name));
-        
+
         // Call API to upload files and create message(s)
         // Backend creates separate message for each file
         const result = await sendMessageWithFiles(
@@ -995,28 +1009,28 @@ export default function ChatPage() {
           trimmedMessage,
           selectedFiles
         );
-        
+
         console.log('[ChatPage] Message(s) created with attachment:', result);
-        
+
         // Handle both single message and array of messages from backend
         const newMessages = Array.isArray(result) ? result : [result];
-        
+
         // Add the new message(s) to the local state
         // Note: Socket will also broadcast these, but we add them immediately for responsiveness
         setMessages(prev => [...prev, ...newMessages]);
-        
+
         const fileCount = selectedFiles.length;
         toast.success(`${fileCount} file${fileCount > 1 ? 's' : ''} sent successfully!`);
-        
+
         // Clear files after successful upload
         setSelectedFiles([]);
       } else {
         // Send text-only message via socket
         await socketSendMessage(activeChannel.id, trimmedMessage);
       }
-      
+
       setInputMessage('');
-      
+
       if (textareaRef.current) {
         textareaRef.current.style.height = 'auto';
         textareaRef.current.focus();
@@ -1036,7 +1050,7 @@ export default function ChatPage() {
   const handleInputChange = (e) => {
     const value = e.target.value;
     setInputMessage(value);
-    
+
     // Auto-resize textarea
     if (textareaRef.current) {
       textareaRef.current.style.height = 'auto';
@@ -1046,12 +1060,12 @@ export default function ChatPage() {
     // Emit typing indicator (debounced)
     if (activeChannel && value.trim()) {
       emitTypingStart(activeChannel.id);
-      
+
       // Clear existing timeout
       if (typingTimeoutRef.current) {
         clearTimeout(typingTimeoutRef.current);
       }
-      
+
       // Stop typing after 2 seconds of inactivity
       typingTimeoutRef.current = setTimeout(() => {
         emitTypingStop(activeChannel.id);
@@ -1074,7 +1088,7 @@ export default function ChatPage() {
   const openCreateChannelModal = (context) => {
     setModalContext(context);
     setNewChannelName('');
-    
+
     if (context.type === 'project') {
       setSelectedProjectId(context.projectId);
     } else if (context.type === 'team') {
@@ -1083,7 +1097,7 @@ export default function ChatPage() {
     } else {
       setSelectedProjectId('');
     }
-    
+
     setIsModalOpen(true);
   };
 
@@ -1122,52 +1136,52 @@ export default function ChatPage() {
    */
   const handleCreateChannel = async (e) => {
     e.preventDefault();
-    
+
     const trimmedName = newChannelName.trim();
     if (!trimmedName) {
       toast.error('Channel name is required');
       return;
     }
-    
+
     // Validate selection (accept "null" string for team-level channels)
     if (!selectedProjectId && modalContext?.type === 'global') {
       toast.error('Please select where this channel belongs to');
       return;
     }
-    
+
     setIsCreatingChannel(true);
-    
+
     try {
       // Convert "null" string to actual null, otherwise convert to number
       const projectIdValue = selectedProjectId === "null" ? null : (selectedProjectId ? Number(selectedProjectId) : null);
-      
+
       const channelData = {
         name: trimmedName,
         projectId: projectIdValue,
         type: 'text',
         isPrivate: false,
       };
-      
+
       // Call API to create channel
       const newChannel = await createChannel(teamId, channelData);
-      
+
       toast.success(`Channel "${trimmedName}" created successfully!`);
       closeCreateChannelModal();
-      
+
       // Refresh channels list and projects
       const [updatedChannels, projectsData] = await Promise.all([
         fetchTeamChannels(teamId),
         getTeamProjects(teamId).catch(() => ({ data: [] }))
       ]);
-      
+
       setChannels(updatedChannels);
       setTeamProjects(projectsData.data || []);
-      
+
       // Auto-select the newly created channel
       if (newChannel) {
         setActiveChannel(newChannel);
       }
-      
+
     } catch (err) {
       console.error('Failed to create channel:', err);
       const errorMessage = err.message || 'Failed to create channel. Please try again.';
@@ -1191,8 +1205,8 @@ export default function ChatPage() {
    */
   const ChannelItem = ({ channel }) => {
     const isActive = activeChannel?.id === channel.id;
-    const activeClass = isActive 
-      ? (isDarkMode ? 'bg-[#006239]/20 text-white' : 'bg-blue-50 text-blue-700') 
+    const activeClass = isActive
+      ? (isDarkMode ? 'bg-[#006239]/20 text-white' : 'bg-blue-50 text-blue-700')
       : `${textSecondary} ${hoverBg}`;
 
     return (
@@ -1238,21 +1252,66 @@ export default function ChatPage() {
    * Renders individual message with proper styling and file attachments
    */
   const MessageBubble = ({ msg, isMe, isSequence }) => {
+    const [isHovered, setIsHovered] = useState(false);
+    const [showMenu, setShowMenu] = useState(false);
+    const [isWithdrawing, setIsWithdrawing] = useState(false);
+    const menuRef = useRef(null);
+
     const attachmentUrl = msg.attachment_url;
     const fileType = attachmentUrl ? getFileTypeFromUrl(attachmentUrl) : null;
     const fileName = attachmentUrl ? getFileNameFromUrl(attachmentUrl) : null;
     const FileIcon = fileType ? getFileTypeIcon(fileType) : File;
     const fileColor = fileType ? getFileTypeColor(fileType) : 'bg-gray-500';
-    
+
     // Get link metadata for this message (if available)
     const linkData = messageLinkMetadata[msg.id];
-    
+
+    // Check if message is withdrawn
+    const isWithdrawn = msg.is_withdrawn || msg.content === 'This message has been withdrawn.';
+
+    // Handle withdraw message
+    const handleWithdraw = async () => {
+      if (isWithdrawing) return;
+
+      setIsWithdrawing(true);
+      setShowMenu(false);
+
+      try {
+        await withdrawMessage(teamId, activeChannel.id, msg.id);
+        // Update local state
+        setMessages(prev => prev.map(m =>
+          m.id === msg.id
+            ? { ...m, content: 'This message has been withdrawn.', is_withdrawn: true, attachment_url: null }
+            : m
+        ));
+        toast.success('Message withdrawn');
+      } catch (err) {
+        console.error('Failed to withdraw message:', err);
+        toast.error(err.message || 'Failed to withdraw message');
+      } finally {
+        setIsWithdrawing(false);
+      }
+    };
+
+    // Close menu when clicking outside
+    useEffect(() => {
+      const handleClickOutside = (e) => {
+        if (menuRef.current && !menuRef.current.contains(e.target)) {
+          setShowMenu(false);
+        }
+      };
+      if (showMenu) {
+        document.addEventListener('mousedown', handleClickOutside);
+      }
+      return () => document.removeEventListener('mousedown', handleClickOutside);
+    }, [showMenu]);
+
     /**
      * Render attachment based on file type
      */
     const renderAttachment = () => {
       if (!attachmentUrl) return null;
-      
+
       // Image attachment - render inline with click to preview
       if (fileType === 'image') {
         return (
@@ -1268,10 +1327,9 @@ export default function ChatPage() {
               }}
             />
             {/* Fallback file card if image fails to load */}
-            <div 
-              className={`hidden items-center gap-3 p-3 rounded-lg border ${
-                isDarkMode ? 'bg-[#1F1F1F] border-[#333]' : 'bg-gray-100 border-gray-200'
-              }`}
+            <div
+              className={`hidden items-center gap-3 p-3 rounded-lg border ${isDarkMode ? 'bg-[#1F1F1F] border-[#333]' : 'bg-gray-100 border-gray-200'
+                }`}
             >
               <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${fileColor}`}>
                 <FileIcon size={20} className="text-white" />
@@ -1289,9 +1347,8 @@ export default function ChatPage() {
                 target="_blank"
                 rel="noopener noreferrer"
                 download
-                className={`p-2 rounded-lg transition-colors ${
-                  isDarkMode ? 'hover:bg-[#333]' : 'hover:bg-gray-300'
-                }`}
+                className={`p-2 rounded-lg transition-colors ${isDarkMode ? 'hover:bg-[#333]' : 'hover:bg-gray-300'
+                  }`}
                 onClick={(e) => e.stopPropagation()}
               >
                 <Download size={16} className={isDarkMode ? 'text-gray-400' : 'text-gray-600'} />
@@ -1300,14 +1357,13 @@ export default function ChatPage() {
           </div>
         );
       }
-      
+
       // Video attachment - render video player
       if (fileType === 'video') {
         return (
           <div className="mt-2">
-            <div className={`rounded-lg overflow-hidden border ${
-              isDarkMode ? 'border-[#333]' : 'border-gray-200'
-            }`}>
+            <div className={`rounded-lg overflow-hidden border ${isDarkMode ? 'border-[#333]' : 'border-gray-200'
+              }`}>
               <video
                 src={attachmentUrl}
                 controls
@@ -1317,9 +1373,8 @@ export default function ChatPage() {
                 Your browser does not support video playback.
               </video>
               {/* Video info bar */}
-              <div className={`flex items-center justify-between px-3 py-2 ${
-                isDarkMode ? 'bg-[#1F1F1F]' : 'bg-gray-100'
-              }`}>
+              <div className={`flex items-center justify-between px-3 py-2 ${isDarkMode ? 'bg-[#1F1F1F]' : 'bg-gray-100'
+                }`}>
                 <div className="flex items-center gap-2 min-w-0">
                   <Film size={16} className={isDarkMode ? 'text-gray-400' : 'text-gray-600'} />
                   <span className={`text-xs truncate ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
@@ -1331,9 +1386,8 @@ export default function ChatPage() {
                   target="_blank"
                   rel="noopener noreferrer"
                   download
-                  className={`p-1.5 rounded transition-colors ${
-                    isDarkMode ? 'hover:bg-[#333]' : 'hover:bg-gray-300'
-                  }`}
+                  className={`p-1.5 rounded transition-colors ${isDarkMode ? 'hover:bg-[#333]' : 'hover:bg-gray-300'
+                    }`}
                   onClick={(e) => e.stopPropagation()}
                   title="Download video"
                 >
@@ -1344,14 +1398,13 @@ export default function ChatPage() {
           </div>
         );
       }
-      
+
       // Audio attachment - render audio player
       if (fileType === 'audio') {
         return (
           <div className="mt-2">
-            <div className={`rounded-lg overflow-hidden border p-3 ${
-              isDarkMode ? 'bg-[#1F1F1F] border-[#333]' : 'bg-gray-100 border-gray-200'
-            }`}>
+            <div className={`rounded-lg overflow-hidden border p-3 ${isDarkMode ? 'bg-[#1F1F1F] border-[#333]' : 'bg-gray-100 border-gray-200'
+              }`}>
               <div className="flex items-center gap-3 mb-2">
                 <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${fileColor}`}>
                   <Music size={20} className="text-white" />
@@ -1366,9 +1419,8 @@ export default function ChatPage() {
                   target="_blank"
                   rel="noopener noreferrer"
                   download
-                  className={`p-2 rounded-lg transition-colors ${
-                    isDarkMode ? 'hover:bg-[#333]' : 'hover:bg-gray-300'
-                  }`}
+                  className={`p-2 rounded-lg transition-colors ${isDarkMode ? 'hover:bg-[#333]' : 'hover:bg-gray-300'
+                    }`}
                   onClick={(e) => e.stopPropagation()}
                 >
                   <Download size={16} className={isDarkMode ? 'text-gray-400' : 'text-gray-600'} />
@@ -1381,15 +1433,14 @@ export default function ChatPage() {
           </div>
         );
       }
-      
+
       // Other files - render file card
       return (
         <div className="mt-2">
-          <div className={`flex items-center gap-3 p-3 rounded-lg border transition-colors ${
-            isDarkMode 
-              ? 'bg-[#1F1F1F] border-[#333] hover:bg-[#252525]' 
-              : 'bg-gray-100 border-gray-200 hover:bg-gray-200'
-          }`}>
+          <div className={`flex items-center gap-3 p-3 rounded-lg border transition-colors ${isDarkMode
+            ? 'bg-[#1F1F1F] border-[#333] hover:bg-[#252525]'
+            : 'bg-gray-100 border-gray-200 hover:bg-gray-200'
+            }`}>
             <div className={`w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0 ${fileColor}`}>
               <FileIcon size={20} className="text-white" />
             </div>
@@ -1406,9 +1457,8 @@ export default function ChatPage() {
               target="_blank"
               rel="noopener noreferrer"
               download
-              className={`p-2 rounded-lg transition-colors ${
-                isDarkMode ? 'hover:bg-[#333]' : 'hover:bg-gray-300'
-              }`}
+              className={`p-2 rounded-lg transition-colors ${isDarkMode ? 'hover:bg-[#333]' : 'hover:bg-gray-300'
+                }`}
               onClick={(e) => e.stopPropagation()}
               title="Download file"
             >
@@ -1418,24 +1468,23 @@ export default function ChatPage() {
         </div>
       );
     };
-    
+
     /**
      * Render link preview card
      */
     const renderLinkPreview = () => {
       if (!linkData) return null;
-      
+
       return (
         <div className="mt-2 max-w-md">
           <a
             href={linkData.url}
             target="_blank"
             rel="noopener noreferrer"
-            className={`block rounded-lg border overflow-hidden transition-colors ${
-              isDarkMode
-                ? 'bg-[#1F1F1F] border-[#333] hover:bg-[#252525]'
-                : 'bg-white border-gray-200 hover:bg-gray-50'
-            }`}
+            className={`block rounded-lg border overflow-hidden transition-colors ${isDarkMode
+              ? 'bg-[#1F1F1F] border-[#333] hover:bg-[#252525]'
+              : 'bg-white border-gray-200 hover:bg-gray-50'
+              }`}
           >
             {/* Image Preview */}
             {linkData.image_url && (
@@ -1450,31 +1499,27 @@ export default function ChatPage() {
                 />
               </div>
             )}
-            
+
             {/* Link Info */}
             <div className="p-3">
               <div className="flex items-start gap-2">
-                <div className={`w-8 h-8 rounded flex-shrink-0 flex items-center justify-center ${
-                  isDarkMode ? 'bg-[#333]' : 'bg-gray-100'
-                }`}>
+                <div className={`w-8 h-8 rounded flex-shrink-0 flex items-center justify-center ${isDarkMode ? 'bg-[#333]' : 'bg-gray-100'
+                  }`}>
                   <ExternalLink size={16} className={isDarkMode ? 'text-gray-400' : 'text-gray-600'} />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className={`text-sm font-semibold mb-1 line-clamp-2 ${
-                    isDarkMode ? 'text-gray-100' : 'text-gray-900'
-                  }`}>
+                  <p className={`text-sm font-semibold mb-1 line-clamp-2 ${isDarkMode ? 'text-gray-100' : 'text-gray-900'
+                    }`}>
                     {linkData.title || 'Untitled'}
                   </p>
                   {linkData.description && (
-                    <p className={`text-xs mb-2 line-clamp-2 ${
-                      isDarkMode ? 'text-gray-400' : 'text-gray-600'
-                    }`}>
+                    <p className={`text-xs mb-2 line-clamp-2 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'
+                      }`}>
                       {linkData.description}
                     </p>
                   )}
-                  <p className={`text-xs flex items-center gap-1 ${
-                    isDarkMode ? 'text-gray-500' : 'text-gray-500'
-                  }`}>
+                  <p className={`text-xs flex items-center gap-1 ${isDarkMode ? 'text-gray-500' : 'text-gray-500'
+                    }`}>
                     <ExternalLink size={10} />
                     {linkData.domain || new URL(linkData.url).hostname}
                   </p>
@@ -1485,11 +1530,13 @@ export default function ChatPage() {
         </div>
       );
     };
-    
+
     return (
-      <div 
+      <div
         data-message-id={msg.id}
-        className={`flex gap-3 ${isMe ? 'flex-row-reverse' : ''} ${isSequence ? 'mt-1' : 'mt-4'} transition-all`}
+        className={`flex gap-3 ${isMe ? 'flex-row-reverse' : ''} ${isSequence ? 'mt-1' : 'mt-4'} transition-all group/msg relative`}
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={() => { setIsHovered(false); setShowMenu(false); }}
       >
         {/* Avatar */}
         <div className={`flex-shrink-0 w-8 h-8 ${isSequence ? 'invisible' : ''}`}>
@@ -1508,7 +1555,7 @@ export default function ChatPage() {
             className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold ${isDarkMode ? 'bg-gray-700 text-white' : 'bg-gray-300 text-black'}`}
             style={{ display: msg.user.avatar_url ? 'none' : 'flex' }}
           >
-            {msg.user.username.substring(0,2).toUpperCase()}
+            {msg.user.username.substring(0, 2).toUpperCase()}
           </div>
         </div>
 
@@ -1522,23 +1569,72 @@ export default function ChatPage() {
               </span>
             </div>
           )}
-          
+
           {/* Message Bubble - Text content */}
-          {msg.content && (
-            <div className={`px-4 py-2 rounded-2xl text-sm leading-relaxed break-words ${
-              isMe 
-                ? 'bg-[#006239] text-white rounded-tr-sm' 
+          <div className="relative">
+            {isWithdrawn ? (
+              // Withdrawn message styling
+              <div className={`px-4 py-2 rounded-2xl text-sm leading-relaxed italic ${isDarkMode ? 'bg-[#1F1F1F]/50 text-gray-500' : 'bg-gray-100 text-gray-400'
+                } rounded-tl-sm`}>
+                <span className="flex items-center gap-1.5">
+                  <AlertCircle size={14} />
+                  This message has been withdrawn.
+                </span>
+              </div>
+            ) : msg.content ? (
+              <div className={`px-4 py-2 rounded-2xl text-sm leading-relaxed break-words ${isMe
+                ? 'bg-[#006239] text-white rounded-tr-sm'
                 : `${isDarkMode ? 'bg-[#1F1F1F] text-gray-200' : 'bg-white border border-gray-200 text-gray-800 shadow-sm'} rounded-tl-sm`
-            }`}>
-              {msg.content}
-            </div>
-          )}
-          
+                }`}>
+                {msg.content}
+              </div>
+            ) : null}
+
+            {/* 3-dot Menu Button - Only show for own messages on hover */}
+            {isMe && !isWithdrawn && isHovered && (
+              <div
+                ref={menuRef}
+                className={`absolute ${isMe ? '-left-8' : '-right-8'} top-0`}
+              >
+                <button
+                  onClick={() => setShowMenu(!showMenu)}
+                  className={`p-1.5 rounded-full transition-all ${isDarkMode
+                    ? 'hover:bg-[#333] text-gray-400 hover:text-gray-200'
+                    : 'hover:bg-gray-200 text-gray-500 hover:text-gray-700'
+                    }`}
+                  title="More options"
+                >
+                  <MoreVertical size={16} />
+                </button>
+
+                {/* Dropdown Menu */}
+                {showMenu && (
+                  <div className={`absolute ${isMe ? 'right-0' : 'left-0'} top-8 z-50 min-w-[140px] py-1 rounded-lg shadow-lg border ${isDarkMode
+                    ? 'bg-dark-secondary border-[#333]'
+                    : 'bg-white border-gray-200'
+                    }`}>
+                    <button
+                      onClick={handleWithdraw}
+                      disabled={isWithdrawing}
+                      className={`w-full flex items-center gap-2 px-3 py-2 text-sm transition-colors ${isDarkMode
+                        ? 'text-red-400 hover:bg-red-500/10'
+                        : 'text-red-600 hover:bg-red-50'
+                        } ${isWithdrawing ? 'opacity-50 cursor-not-allowed' : ''}`}
+                    >
+                      <Trash2 size={14} />
+                      {isWithdrawing ? 'Withdrawing...' : 'Withdraw'}
+                    </button>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+
           {/* Attachment (if any) */}
-          {renderAttachment()}
-          
+          {!isWithdrawn && renderAttachment()}
+
           {/* Link Preview (if available) */}
-          {renderLinkPreview()}
+          {!isWithdrawn && renderLinkPreview()}
         </div>
       </div>
     );
@@ -1582,9 +1678,8 @@ export default function ChatPage() {
    */
   const NoTeamState = () => (
     <div className="flex-1 flex flex-col items-center justify-center text-center p-8">
-      <div className={`inline-flex items-center justify-center w-16 h-16 rounded-full mb-4 ${
-        isDarkMode ? 'bg-blue-500/10' : 'bg-blue-50'
-      }`}>
+      <div className={`inline-flex items-center justify-center w-16 h-16 rounded-full mb-4 ${isDarkMode ? 'bg-blue-500/10' : 'bg-blue-50'
+        }`}>
         <Users size={32} className="text-blue-500" />
       </div>
       <h3 className={`text-2xl font-bold ${textPrimary} mb-3`}>
@@ -1595,11 +1690,10 @@ export default function ChatPage() {
       </p>
       <button
         onClick={() => navigate('/dashboard')}
-        className={`px-6 py-3 rounded-lg font-semibold transition-all ${
-          isDarkMode 
-            ? 'bg-[#006239] hover:bg-[#005230] text-white' 
-            : 'bg-[#006239] hover:bg-[#005230] text-white'
-        }`}
+        className={`px-6 py-3 rounded-lg font-semibold transition-all ${isDarkMode
+          ? 'bg-[#006239] hover:bg-[#005230] text-white'
+          : 'bg-[#006239] hover:bg-[#005230] text-white'
+          }`}
       >
         Go to Dashboard
       </button>
@@ -1629,7 +1723,7 @@ export default function ChatPage() {
 
   return (
     <div className={`flex h-[calc(100vh-64px)] ${bgBase}`}>
-      
+
       {/* Create Channel Modal */}
       <CreateChannelModal
         isModalOpen={isModalOpen}
@@ -1703,15 +1797,14 @@ export default function ChatPage() {
                       new RegExp(`(${searchQuery})`, 'gi'),
                       '<mark class="bg-yellow-300 dark:bg-yellow-600">$1</mark>'
                     );
-                    
+
                     return (
                       <div
                         key={msg.id}
-                        className={`p-4 rounded-lg border cursor-pointer transition-colors ${
-                          isDarkMode 
-                            ? 'bg-[#1F1F1F] border-[#333] hover:bg-[#252525]' 
-                            : 'bg-white border-gray-200 hover:bg-gray-50'
-                        }`}
+                        className={`p-4 rounded-lg border cursor-pointer transition-colors ${isDarkMode
+                          ? 'bg-[#1F1F1F] border-[#333] hover:bg-[#252525]'
+                          : 'bg-white border-gray-200 hover:bg-gray-50'
+                          }`}
                         onClick={() => {
                           closeSearch();
                           // Scroll to message if it's already loaded
@@ -1738,12 +1831,11 @@ export default function ChatPage() {
                             />
                           ) : null}
                           <div
-                            className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold ${
-                              isDarkMode ? 'bg-gray-700 text-white' : 'bg-gray-300 text-black'
-                            }`}
+                            className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold ${isDarkMode ? 'bg-gray-700 text-white' : 'bg-gray-300 text-black'
+                              }`}
                             style={{ display: msg.user?.avatar_url ? 'none' : 'flex' }}
                           >
-                            {msg.user?.username?.substring(0,2).toUpperCase() || 'U'}
+                            {msg.user?.username?.substring(0, 2).toUpperCase() || 'U'}
                           </div>
                           <div className="flex-1 min-w-0">
                             <div className="flex items-baseline gap-2 mb-1">
@@ -1754,7 +1846,7 @@ export default function ChatPage() {
                                 {formatTimestamp(msg.created_at)}
                               </span>
                             </div>
-                            <div 
+                            <div
                               className={`text-sm ${textPrimary} break-words`}
                               dangerouslySetInnerHTML={{ __html: highlightedContent }}
                             />
@@ -1769,7 +1861,7 @@ export default function ChatPage() {
           </div>
         </div>
       )}
-      
+
       {/* Connection Status Indicator */}
       {!isConnected && (
         <div className="fixed top-16 left-0 right-0 z-50 bg-yellow-500 text-black text-center py-1 text-sm flex items-center justify-center gap-2">
@@ -1777,7 +1869,7 @@ export default function ChatPage() {
           <span>Reconnecting to chat server...</span>
         </div>
       )}
-      
+
       {/* LEFT SIDEBAR (Channel List) */}
       <div className={`
         fixed inset-y-0 left-0 z-30 w-64 transform transition-transform duration-300 ease-in-out md:relative md:translate-x-0
@@ -1790,7 +1882,7 @@ export default function ChatPage() {
               {teamData?.name || 'Channels'}
               {/* Only show + button for owner/admin */}
               {teamData?.currentUserRole !== 'member' && (
-                <button 
+                <button
                   className={`p-1 rounded ${hoverBg} transition-colors`}
                   onClick={() => openCreateChannelModal({ type: 'global' })}
                   title="Create new channel"
@@ -1803,7 +1895,7 @@ export default function ChatPage() {
 
           {/* Scrollable List */}
           <div className="flex-1 overflow-y-auto p-3 space-y-6">
-            
+
             {isLoadingChannels ? (
               <ChannelSkeleton />
             ) : channelError ? (
@@ -1832,10 +1924,10 @@ export default function ChatPage() {
                       {/* Only show + button for owner/admin */}
                       {teamData?.currentUserRole !== 'member' && (
                         <button
-                          onClick={() => openCreateChannelModal({ 
-                            type: 'team', 
-                            projectId: null, 
-                            projectName: null 
+                          onClick={() => openCreateChannelModal({
+                            type: 'team',
+                            projectId: null,
+                            projectName: null
                           })}
                           className={`p-0.5 rounded opacity-0 group-hover:opacity-100 transition-opacity ${hoverBg}`}
                           title="Add team channel"
@@ -1860,10 +1952,10 @@ export default function ChatPage() {
                       {/* Only show + button for owner/admin */}
                       {teamData?.currentUserRole !== 'member' && (
                         <button
-                          onClick={() => openCreateChannelModal({ 
-                            type: 'project', 
-                            projectId: data.projectId, 
-                            projectName 
+                          onClick={() => openCreateChannelModal({
+                            type: 'project',
+                            projectId: data.projectId,
+                            projectName
                           })}
                           className={`p-0.5 rounded opacity-0 group-hover:opacity-100 transition-opacity ${hoverBg}`}
                           title={`Add channel to ${projectName}`}
@@ -1885,7 +1977,7 @@ export default function ChatPage() {
 
       {/* OVERLAY for Mobile */}
       {mobileMenuOpen && (
-        <div 
+        <div
           className="fixed inset-0 bg-black/50 z-20 md:hidden"
           onClick={() => setMobileMenuOpen(false)}
         />
@@ -1893,17 +1985,17 @@ export default function ChatPage() {
 
       {/* RIGHT MAIN CHAT AREA */}
       <div className="flex-1 flex flex-col min-w-0 bg-transparent">
-        
+
         {/* Chat Header */}
         <div className={`h-16 px-4 md:px-6 flex items-center justify-between border-b flex-shrink-0 ${isDarkMode ? 'bg-dark-secondary border-[#171717]' : 'bg-white border-gray-200'}`}>
           <div className="flex items-center gap-3">
-            <button 
+            <button
               className="md:hidden p-1 -ml-2 mr-1"
               onClick={() => setMobileMenuOpen(true)}
             >
               <Menu size={24} className={textPrimary} />
             </button>
-            
+
             {activeChannel ? (
               <div className="flex items-center gap-2">
                 {activeChannel.type === 'voice' ? <Volume2 size={24} className={textSecondary} /> : <Hash size={24} className={textSecondary} />}
@@ -1923,7 +2015,7 @@ export default function ChatPage() {
 
           {/* Header Actions */}
           <div className="flex items-center gap-2">
-            <button 
+            <button
               onClick={openSearch}
               className={`p-2 rounded-full ${hoverBg} ${textSecondary} ${!activeChannel ? 'opacity-50 cursor-not-allowed' : ''}`}
               title="Search in channel"
@@ -1931,13 +2023,12 @@ export default function ChatPage() {
             >
               <Search size={20} />
             </button>
-            <button 
+            <button
               onClick={() => setIsInfoOpen(!isInfoOpen)}
-              className={`p-2 rounded-full transition-colors ${
-                isInfoOpen 
-                  ? 'bg-[#006239] text-white hover:bg-[#005230]' 
-                  : `${hoverBg} ${textSecondary}`
-              } ${!activeChannel ? 'opacity-50 cursor-not-allowed' : ''}`}
+              className={`p-2 rounded-full transition-colors ${isInfoOpen
+                ? 'bg-[#006239] text-white hover:bg-[#005230]'
+                : `${hoverBg} ${textSecondary}`
+                } ${!activeChannel ? 'opacity-50 cursor-not-allowed' : ''}`}
               title="Channel info"
               disabled={!activeChannel}
             >
@@ -1947,7 +2038,7 @@ export default function ChatPage() {
         </div>
 
         {/* Messages List Area */}
-        <div 
+        <div
           ref={messagesContainerRef}
           onScroll={handleScroll}
           className="flex-1 overflow-y-auto p-4 md:p-6"
@@ -1970,7 +2061,7 @@ export default function ChatPage() {
                 <p className={`text-sm ${isDarkMode ? 'text-red-400' : 'text-red-600'}`}>
                   {messageError}
                 </p>
-                <button 
+                <button
                   onClick={() => {
                     setMessageError(null);
                     setActiveChannel({ ...activeChannel }); // Trigger re-fetch
@@ -1990,17 +2081,16 @@ export default function ChatPage() {
                 <div className="flex justify-center py-4">
                   <button
                     onClick={loadMoreMessages}
-                    className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                      isDarkMode 
-                        ? 'bg-[#1F1F1F] hover:bg-[#2A2A2A] text-gray-300 border border-[#333]' 
-                        : 'bg-white hover:bg-gray-50 text-gray-700 border border-gray-200 shadow-sm'
-                    }`}
+                    className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${isDarkMode
+                      ? 'bg-[#1F1F1F] hover:bg-[#2A2A2A] text-gray-300 border border-[#333]'
+                      : 'bg-white hover:bg-gray-50 text-gray-700 border border-gray-200 shadow-sm'
+                      }`}
                   >
                     Load older messages
                   </button>
                 </div>
               )}
-              
+
               {/* Load More Indicator */}
               {isLoadingMore && (
                 <div className="flex justify-center py-4">
@@ -2014,7 +2104,7 @@ export default function ChatPage() {
                   </div>
                 </div>
               )}
-              
+
               {/* No More Messages Indicator */}
               {!hasMoreMessages && messages.length > 0 && (
                 <div className="flex justify-center py-4">
@@ -2023,18 +2113,18 @@ export default function ChatPage() {
                   </span>
                 </div>
               )}
-              
+
               <div className="space-y-1">
                 {messages.map((msg, index) => {
                   const isMe = currentUser && msg.user_id === currentUser.id;
-                  const isSequence = index > 0 && messages[index-1].user_id === msg.user_id;
+                  const isSequence = index > 0 && messages[index - 1].user_id === msg.user_id;
 
                   return (
-                    <MessageBubble 
-                      key={msg.id} 
-                      msg={msg} 
-                      isMe={isMe} 
-                      isSequence={isSequence} 
+                    <MessageBubble
+                      key={msg.id}
+                      msg={msg}
+                      isMe={isMe}
+                      isSequence={isSequence}
                     />
                   );
                 })}
@@ -2042,7 +2132,7 @@ export default function ChatPage() {
               </div>
             </>
           )}
-          
+
           {/* Typing Indicator */}
           {typingUsers.length > 0 && (
             <div className={`flex items-center gap-2 mt-2 ${textSecondary} text-sm`}>
@@ -2088,7 +2178,7 @@ export default function ChatPage() {
               ))}
             </div>
           )}
-          
+
           {/* Hidden File Input */}
           <input
             ref={fileInputRef}
@@ -2098,10 +2188,10 @@ export default function ChatPage() {
             onChange={handleFileSelect}
             className="hidden"
           />
-          
+
           <div className={`flex items-end gap-2 p-2 rounded-xl border ${inputBg} focus-within:ring-2 focus-within:ring-[#006239]/50 transition-all ${!activeChannel ? 'opacity-50' : ''}`}>
-            
-            <button 
+
+            <button
               onClick={openFilePicker}
               className={`p-2 rounded-lg ${hoverBg} ${textSecondary} flex-shrink-0 ${selectedFiles.length >= MAX_FILES ? 'opacity-50 cursor-not-allowed' : ''}`}
               title={selectedFiles.length >= MAX_FILES ? `Maximum ${MAX_FILES} files` : 'Attach file'}
@@ -2109,7 +2199,7 @@ export default function ChatPage() {
             >
               <Paperclip size={20} />
             </button>
-            
+
             <textarea
               ref={textareaRef}
               value={inputMessage}
@@ -2133,21 +2223,46 @@ export default function ChatPage() {
             />
 
             <div className="flex items-center gap-1 pb-1">
-               <button 
-                className={`p-2 rounded-lg ${hoverBg} ${textSecondary}`}
-                title="Add emoji"
-                disabled={!activeChannel}
-              >
-                <Smile size={20} />
-              </button>
-              <button 
+              {/* Emoji Picker Button & Popup */}
+              <div className="relative" ref={emojiPickerRef}>
+                <button
+                  onClick={() => setShowEmojiPicker(!showEmojiPicker)}
+                  className={`p-2 rounded-lg ${hoverBg} ${textSecondary} ${showEmojiPicker ? (isDarkMode ? 'bg-[#333]' : 'bg-gray-200') : ''}`}
+                  title="Add emoji"
+                  disabled={!activeChannel}
+                >
+                  <Smile size={20} />
+                </button>
+
+                {/* Emoji Picker Popup */}
+                {showEmojiPicker && (
+                  <div
+                    className="absolute bottom-12 right-0 z-50"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    <EmojiPicker
+                      onEmojiClick={(emojiData) => {
+                        setInputMessage(prev => prev + emojiData.emoji);
+                        setShowEmojiPicker(false);
+                        textareaRef.current?.focus();
+                      }}
+                      theme={isDarkMode ? 'dark' : 'light'}
+                      width={320}
+                      height={400}
+                      searchPlaceholder="Search emoji..."
+                      previewConfig={{ showPreview: false }}
+                    />
+                  </div>
+                )}
+              </div>
+
+              <button
                 onClick={handleSendMessage}
                 disabled={(!inputMessage.trim() && selectedFiles.length === 0) || !activeChannel || isSending}
-                className={`p-2 rounded-lg transition-all ${
-                  (inputMessage.trim() || selectedFiles.length > 0) && activeChannel && !isSending
-                    ? 'bg-[#006239] text-white hover:bg-[#005230]' 
-                    : `${isDarkMode ? 'bg-[#333]' : 'bg-gray-200'} ${textSecondary} cursor-not-allowed`
-                }`}
+                className={`p-2 rounded-lg transition-all ${(inputMessage.trim() || selectedFiles.length > 0) && activeChannel && !isSending
+                  ? 'bg-[#006239] text-white hover:bg-[#005230]'
+                  : `${isDarkMode ? 'bg-[#333]' : 'bg-gray-200'} ${textSecondary} cursor-not-allowed`
+                  }`}
                 title={isUploading ? 'Uploading files...' : 'Send message'}
               >
                 {isUploading ? (
@@ -2213,14 +2328,12 @@ export default function ChatPage() {
               </div>
               <button
                 onClick={() => setNotificationsEnabled(!notificationsEnabled)}
-                className={`relative w-11 h-6 rounded-full transition-colors ${
-                  notificationsEnabled ? 'bg-[#006239]' : isDarkMode ? 'bg-gray-700' : 'bg-gray-300'
-                }`}
+                className={`relative w-11 h-6 rounded-full transition-colors ${notificationsEnabled ? 'bg-[#006239]' : isDarkMode ? 'bg-gray-700' : 'bg-gray-300'
+                  }`}
               >
                 <div
-                  className={`absolute top-1 left-1 w-4 h-4 bg-white rounded-full transition-transform ${
-                    notificationsEnabled ? 'translate-x-5' : 'translate-x-0'
-                  }`}
+                  className={`absolute top-1 left-1 w-4 h-4 bg-white rounded-full transition-transform ${notificationsEnabled ? 'translate-x-5' : 'translate-x-0'
+                    }`}
                 />
               </button>
             </div>
@@ -2230,7 +2343,7 @@ export default function ChatPage() {
           <div className={`border-b ${isDarkMode ? 'border-[#171717]' : 'border-gray-200'}`}>
             <button
               className={`w-full p-4 flex items-center justify-between ${hoverBg}`}
-              onClick={() => {}}
+              onClick={() => { }}
             >
               <div className="flex items-center gap-2">
                 <FileText size={18} className={textSecondary} />
@@ -2250,11 +2363,10 @@ export default function ChatPage() {
                   return (
                     <div
                       key={file.id}
-                      className={`flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition-colors ${
-                        isDarkMode
-                          ? 'bg-[#1F1F1F] border-[#333] hover:bg-[#252525]'
-                          : 'bg-gray-50 border-gray-200 hover:bg-gray-100'
-                      }`}
+                      className={`flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition-colors ${isDarkMode
+                        ? 'bg-[#1F1F1F] border-[#333] hover:bg-[#252525]'
+                        : 'bg-gray-50 border-gray-200 hover:bg-gray-100'
+                        }`}
                       onClick={() => {
                         if (file.type === 'image') {
                           setPreviewImage(file.url);
@@ -2301,15 +2413,14 @@ export default function ChatPage() {
           <div>
             <button
               className={`w-full p-4 flex items-center justify-between ${hoverBg}`}
-              onClick={() => {}}
+              onClick={() => { }}
             >
               <div className="flex items-center gap-2">
                 <LinkIcon size={18} className={textSecondary} />
                 <span className={`font-medium ${textPrimary}`}>Link</span>
                 {channelLinks.length > 0 && (
-                  <span className={`text-xs px-2 py-0.5 rounded-full ${
-                    isDarkMode ? 'bg-[#333] text-gray-400' : 'bg-gray-200 text-gray-600'
-                  }`}>
+                  <span className={`text-xs px-2 py-0.5 rounded-full ${isDarkMode ? 'bg-[#333] text-gray-400' : 'bg-gray-200 text-gray-600'
+                    }`}>
                     {channelLinks.length}
                   </span>
                 )}
@@ -2333,15 +2444,14 @@ export default function ChatPage() {
                       href={link.url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className={`flex items-start gap-3 p-3 rounded-lg border transition-colors ${
-                        isDarkMode
-                          ? 'bg-[#1F1F1F] border-[#333] hover:bg-[#252525]'
-                          : 'bg-gray-50 border-gray-200 hover:bg-gray-100'
-                      }`}
+                      className={`flex items-start gap-3 p-3 rounded-lg border transition-colors ${isDarkMode
+                        ? 'bg-[#1F1F1F] border-[#333] hover:bg-[#252525]'
+                        : 'bg-gray-50 border-gray-200 hover:bg-gray-100'
+                        }`}
                     >
                       {link.image_url ? (
-                        <img 
-                          src={link.image_url} 
+                        <img
+                          src={link.image_url}
                           alt=""
                           className="w-12 h-12 rounded object-cover flex-shrink-0"
                           onError={(e) => {
@@ -2350,10 +2460,9 @@ export default function ChatPage() {
                           }}
                         />
                       ) : null}
-                      <div 
-                        className={`w-12 h-12 rounded flex-shrink-0 flex items-center justify-center ${
-                          isDarkMode ? 'bg-[#333]' : 'bg-gray-200'
-                        } ${link.image_url ? 'hidden' : ''}`}
+                      <div
+                        className={`w-12 h-12 rounded flex-shrink-0 flex items-center justify-center ${isDarkMode ? 'bg-[#333]' : 'bg-gray-200'
+                          } ${link.image_url ? 'hidden' : ''}`}
                       >
                         <ExternalLink size={20} className={textSecondary} />
                       </div>
@@ -2387,11 +2496,10 @@ export default function ChatPage() {
             <div className={`p-4 border-t ${isDarkMode ? 'border-[#171717]' : 'border-gray-200'}`}>
               <button
                 onClick={() => setShowDeleteChannelModal(true)}
-                className={`w-full flex items-center justify-center gap-2 px-4 py-3 rounded-lg font-medium transition-colors ${
-                  isDarkMode
-                    ? 'bg-red-500/10 text-red-400 hover:bg-red-500/20 border border-red-500/30'
-                    : 'bg-red-50 text-red-600 hover:bg-red-100 border border-red-200'
-                }`}
+                className={`w-full flex items-center justify-center gap-2 px-4 py-3 rounded-lg font-medium transition-colors ${isDarkMode
+                  ? 'bg-red-500/10 text-red-400 hover:bg-red-500/20 border border-red-500/30'
+                  : 'bg-red-50 text-red-600 hover:bg-red-100 border border-red-200'
+                  }`}
               >
                 <Trash2 size={18} />
                 Delete Channel
@@ -2430,10 +2538,10 @@ export default function ChatPage() {
         isDeleting={isDeletingChannel}
         isDarkMode={isDarkMode}
       />
-      
+
       {/* Image Preview Modal */}
       {previewImage && (
-        <div 
+        <div
           className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-sm"
           onClick={() => setPreviewImage(null)}
         >
