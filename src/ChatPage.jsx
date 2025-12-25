@@ -1109,6 +1109,7 @@ export default function ChatPage() {
     setModalContext(null);
     setNewChannelName('');
     setSelectedProjectId('');
+    setIsCreatingChannel(false); // Reset creating state to prevent modal freeze
   };
 
   /**

@@ -69,7 +69,7 @@ export const createChannel = async (teamId, channelData) => {
   });
 
   if (!response.ok) {
-    const error = await response.json();
+    const error = await response.json().catch(() => ({ message: 'Failed to create channel' }));
     throw new Error(error.message || 'Failed to create channel');
   }
 
