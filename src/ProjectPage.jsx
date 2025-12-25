@@ -3,10 +3,10 @@ import { useOutletContext, useParams, useNavigate } from 'react-router-dom';
 import * as projectApi from './services/projectApi';
 import * as riskReportApi from './services/riskReportApi';
 import { RiskReportCard } from './components/RiskReportCard';
-import { 
+import {
   CheckCircle2,
   Clock,
-  MoreVertical, 
+  MoreVertical,
   AlertCircle,
   ArrowLeft,
   Calendar,
@@ -24,7 +24,10 @@ import {
   MessageSquare,
   Brain,
   ChevronDown,
-  Filter
+  Filter,
+  Pin,
+  ChevronLeft,
+  ChevronRight
 } from 'lucide-react';
 
 /**
@@ -103,7 +106,7 @@ const PriorityBadge = ({ priority }) => {
   );
 };
 
-const TaskCard = ({ task, darkMode, userRole, onEdit, onDelete }) => {
+const TaskCard = ({ task, darkMode, userRole, onEdit, onDelete, isPinned, onTogglePin }) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const [showActions, setShowActions] = useState(false);
   const daysUntilDue = getDaysUntilDue(task.due_date);
@@ -113,8 +116,15 @@ const TaskCard = ({ task, darkMode, userRole, onEdit, onDelete }) => {
   const canEdit = canEditTasks(userRole);
 
   return (
-    <div className={`${darkMode ? 'bg-dark-secondary/50 border-[#171717]/50 hover:border-blue-500/50' : 'bg-white border-gray-200 shadow-sm hover:border-blue-500'} border rounded-xl p-5 transition-all group`}>
-      
+    <div className={`${darkMode ? 'bg-dark-secondary/50 border-[#171717]/50 hover:border-blue-500/50' : 'bg-white border-gray-200 shadow-sm hover:border-blue-500'} ${isPinned ? 'ring-2 ring-amber-500/50' : ''} border rounded-xl p-5 transition-all group relative`}>
+
+      {/* Pinned indicator */}
+      {isPinned && (
+        <div className="absolute -top-2 -right-2 bg-amber-500 text-white p-1.5 rounded-full shadow-lg z-10">
+          <Pin size={12} className="fill-current" />
+        </div>
+      )}
+
       <div className="flex items-start justify-between gap-3 mb-3">
         <div className="flex-1 min-w-0">
           <h3 className={`font-semibold text-lg mb-2 ${darkMode ? 'text-white' : 'text-black'}`}>
@@ -137,6 +147,14 @@ const TaskCard = ({ task, darkMode, userRole, onEdit, onDelete }) => {
 
             {showActions && (
               <div className={`absolute right-0 mt-2 w-48 rounded-lg shadow-lg border overflow-hidden z-10 ${darkMode ? 'bg-dark-secondary border-[#171717]' : 'bg-white border-gray-200'}`}>
+                {/* Pin/Unpin option */}
+                <button
+                  onClick={() => { onTogglePin(task.id); setShowActions(false); }}
+                  className={`w-full flex items-center gap-2 px-4 py-2.5 text-sm transition-colors ${darkMode ? 'hover:bg-[#171717] text-amber-400' : 'hover:bg-amber-50 text-amber-600'}`}
+                >
+                  <Pin size={14} className={isPinned ? 'fill-current' : ''} />
+                  {isPinned ? 'Unpin Task' : 'Pin Task'}
+                </button>
                 <button
                   onClick={() => { onEdit(task); setShowActions(false); }}
                   className={`w-full flex items-center gap-2 px-4 py-2.5 text-sm transition-colors ${darkMode ? 'hover:bg-[#171717] text-gray-300' : 'hover:bg-gray-200/30 text-black'}`}
@@ -173,7 +191,7 @@ const TaskCard = ({ task, darkMode, userRole, onEdit, onDelete }) => {
       )}
 
       <div className={`space-y-3 pt-3 border-t ${darkMode ? 'border-[#171717]/50' : 'border-gray-200'}`}>
-        
+
         {/* Assigned To Row */}
         <div className="flex items-center justify-between">
           <span className={`text-xs font-medium ${darkMode ? 'text-gray-300' : 'text-gray-400'}`}>
@@ -182,10 +200,10 @@ const TaskCard = ({ task, darkMode, userRole, onEdit, onDelete }) => {
           <div className="flex items-center gap-2">
             {(() => {
               // Filter out null/invalid assignees and ensure we have valid data
-              const validAssignees = Array.isArray(task.assignees) 
-                ? task.assignees.filter(a => a && a.user_id) 
+              const validAssignees = Array.isArray(task.assignees)
+                ? task.assignees.filter(a => a && a.user_id)
                 : [];
-              
+
               if (validAssignees.length > 0) {
                 return (
                   <>
@@ -196,11 +214,10 @@ const TaskCard = ({ task, darkMode, userRole, onEdit, onDelete }) => {
                             <img
                               src={assignee.avatar_url}
                               alt={assignee.username}
-                              className={`h-6 w-6 rounded-full object-cover border-2 ${
-                                darkMode 
-                                  ? 'border-[rgb(30,36,30)]' 
-                                  : 'border-white'
-                              }`}
+                              className={`h-6 w-6 rounded-full object-cover border-2 ${darkMode
+                                ? 'border-[rgb(30,36,30)]'
+                                : 'border-white'
+                                }`}
                               title={assignee.username}
                               onError={(e) => {
                                 e.target.style.display = 'none';
@@ -209,11 +226,10 @@ const TaskCard = ({ task, darkMode, userRole, onEdit, onDelete }) => {
                             />
                           ) : null}
                           <div
-                            className={`h-6 w-6 rounded-full flex items-center justify-center text-xs font-medium border-2 ${
-                              darkMode 
-                                ? 'bg-[#006239] text-white border-[rgb(30,36,30)]' 
-                                : 'bg-gray-200 text-black border-white'
-                            }`}
+                            className={`h-6 w-6 rounded-full flex items-center justify-center text-xs font-medium border-2 ${darkMode
+                              ? 'bg-[#006239] text-white border-[rgb(30,36,30)]'
+                              : 'bg-gray-200 text-black border-white'
+                              }`}
                             title={assignee.username}
                             style={{ display: assignee.avatar_url ? 'none' : 'flex' }}
                           >
@@ -223,11 +239,10 @@ const TaskCard = ({ task, darkMode, userRole, onEdit, onDelete }) => {
                       ))}
                       {validAssignees.length > 3 && (
                         <div
-                          className={`h-6 w-6 rounded-full flex items-center justify-center text-xs font-medium border-2 ${
-                            darkMode 
-                              ? 'bg-[#171717] text-gray-300 border-[rgb(30,36,30)]' 
-                              : 'bg-gray-100 text-gray-700 border-white'
-                          }`}
+                          className={`h-6 w-6 rounded-full flex items-center justify-center text-xs font-medium border-2 ${darkMode
+                            ? 'bg-[#171717] text-gray-300 border-[rgb(30,36,30)]'
+                            : 'bg-gray-100 text-gray-700 border-white'
+                            }`}
                         >
                           +{validAssignees.length - 3}
                         </div>
@@ -241,9 +256,8 @@ const TaskCard = ({ task, darkMode, userRole, onEdit, onDelete }) => {
               } else {
                 return (
                   <>
-                    <div className={`h-6 w-6 rounded-full flex items-center justify-center text-xs font-medium ${
-                      darkMode ? 'bg-[#171717] text-gray-300' : 'bg-gray-100 text-gray-700'
-                    }`}>
+                    <div className={`h-6 w-6 rounded-full flex items-center justify-center text-xs font-medium ${darkMode ? 'bg-[#171717] text-gray-300' : 'bg-gray-100 text-gray-700'
+                      }`}>
                       ?
                     </div>
                     <span className={`text-sm font-medium ${darkMode ? 'text-gray-300' : 'text-gray-400'}`}>
@@ -285,13 +299,12 @@ const TaskCard = ({ task, darkMode, userRole, onEdit, onDelete }) => {
 const FilterButton = ({ active, children, onClick, darkMode }) => (
   <button
     onClick={onClick}
-    className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
-      active
-        ? 'bg-[#006239] text-white shadow-md'
-        : darkMode
+    className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${active
+      ? 'bg-[#006239] text-white shadow-md'
+      : darkMode
         ? 'bg-dark-secondary/50 text-gray-300 hover:bg-[#171717] hover:text-gray-300'
         : 'bg-white text-gray-400 border border-gray-200 hover:bg-gray-200/30 hover:text-black'
-    }`}
+      }`}
   >
     {children}
   </button>
@@ -307,16 +320,16 @@ const Modal = ({ isOpen, onClose, title, children, darkMode }) => {
   React.useEffect(() => {
     const originalOverflow = document.body.style.overflow;
     const originalPaddingRight = document.body.style.paddingRight;
-    
+
     // Prevent scroll
     document.body.style.overflow = 'hidden';
-    
+
     // Prevent scrollbar shift by adding padding
     const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
     if (scrollbarWidth > 0) {
       document.body.style.paddingRight = `${scrollbarWidth}px`;
     }
-    
+
     return () => {
       document.body.style.overflow = originalOverflow;
       document.body.style.paddingRight = originalPaddingRight;
@@ -324,29 +337,25 @@ const Modal = ({ isOpen, onClose, title, children, darkMode }) => {
   }, []);
 
   return (
-    <div 
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm overflow-hidden" 
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm overflow-hidden"
       onClick={onClose}
       onWheel={(e) => e.preventDefault()}
       onTouchMove={(e) => e.preventDefault()}
     >
-      <div 
-        className={`w-full max-w-2xl rounded-xl shadow-2xl max-h-[90vh] overflow-hidden ${
-          darkMode ? 'bg-dark-secondary border border-[#171717]' : 'bg-white border border-gray-200'
-        }`}
+      <div
+        className={`w-full max-w-2xl rounded-xl shadow-2xl max-h-[90vh] overflow-hidden ${darkMode ? 'bg-dark-secondary border border-[#171717]' : 'bg-white border border-gray-200'
+          }`}
         onClick={(e) => e.stopPropagation()}
       >
-        <div className={`flex items-center justify-between p-6 border-b ${
-          darkMode ? 'border-[#171717]' : 'border-gray-200'
-        }`}>
-          <h2 className={`text-2xl font-bold ${
-            darkMode ? 'text-white' : 'text-black'
-          }`}>{title}</h2>
+        <div className={`flex items-center justify-between p-6 border-b ${darkMode ? 'border-[#171717]' : 'border-gray-200'
+          }`}>
+          <h2 className={`text-2xl font-bold ${darkMode ? 'text-white' : 'text-black'
+            }`}>{title}</h2>
           <button
             onClick={onClose}
-            className={`p-2 rounded-lg transition-colors ${
-              darkMode ? 'hover:bg-[#171717] text-gray-300' : 'hover:bg-gray-100 text-gray-700'
-            }`}
+            className={`p-2 rounded-lg transition-colors ${darkMode ? 'hover:bg-[#171717] text-gray-300' : 'hover:bg-gray-100 text-gray-700'
+              }`}
           >
             ✕
           </button>
@@ -383,7 +392,7 @@ const CreateTaskModal = ({ isOpen, onClose, onSubmit, projectMembers, darkMode }
     e.preventDefault();
     setLocalError(null);
     setIsSubmitting(true);
-    
+
     try {
       await onSubmit(formData);
       // Only reset form and close if submission succeeds
@@ -397,35 +406,30 @@ const CreateTaskModal = ({ isOpen, onClose, onSubmit, projectMembers, darkMode }
     }
   };
 
-  const inputClass = `w-full rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 transition-all ${
-    darkMode ? 'bg-dark-secondary border border-[#171717] text-gray-300' : 'bg-gray-200/30 border border-[rgb(161,188,152)] text-black'
-  }`;
+  const inputClass = `w-full rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 transition-all ${darkMode ? 'bg-dark-secondary border border-[#171717] text-gray-300' : 'bg-gray-200/30 border border-[rgb(161,188,152)] text-black'
+    }`;
 
-  const labelClass = `block text-sm font-bold mb-2 ${
-    darkMode ? 'text-gray-300' : 'text-gray-400'
-  }`;
+  const labelClass = `block text-sm font-bold mb-2 ${darkMode ? 'text-gray-300' : 'text-gray-400'
+    }`;
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} title="Create New Task" darkMode={darkMode}>
       <form onSubmit={handleSubmit} className="space-y-4">
         {localError && (
-          <div className={`p-4 rounded-lg border-2 ${
-            darkMode ? 'bg-red-500/10 border-red-500/30' : 'bg-red-50 border-red-200'
-          }`}>
+          <div className={`p-4 rounded-lg border-2 ${darkMode ? 'bg-red-500/10 border-red-500/30' : 'bg-red-50 border-red-200'
+            }`}>
             <div className="flex items-start gap-3">
               <AlertCircle className="text-red-500 flex-shrink-0 mt-0.5" size={20} />
               <div className="flex-1">
-                <h4 className={`font-bold text-sm mb-1 ${
-                  darkMode ? 'text-red-400' : 'text-red-600'
-                }`}>Error Creating Task</h4>
-                <p className={`text-sm ${
-                  darkMode ? 'text-red-300' : 'text-red-500'
-                }`}>{localError}</p>
+                <h4 className={`font-bold text-sm mb-1 ${darkMode ? 'text-red-400' : 'text-red-600'
+                  }`}>Error Creating Task</h4>
+                <p className={`text-sm ${darkMode ? 'text-red-300' : 'text-red-500'
+                  }`}>{localError}</p>
               </div>
             </div>
           </div>
         )}
-        
+
         <div>
           <label className={labelClass}>Title *</label>
           <input
@@ -523,9 +527,8 @@ const CreateTaskModal = ({ isOpen, onClose, onSubmit, projectMembers, darkMode }
           <button
             type="button"
             onClick={onClose}
-            className={`flex-1 px-6 py-3 rounded-lg font-semibold transition-all ${
-              darkMode ? 'bg-[#171717] text-gray-300 hover:bg-gray-700' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-            }`}
+            className={`flex-1 px-6 py-3 rounded-lg font-semibold transition-all ${darkMode ? 'bg-[#171717] text-gray-300 hover:bg-gray-700' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+              }`}
           >
             Cancel
           </button>
@@ -558,10 +561,10 @@ const EditTaskModal = ({ isOpen, onClose, onSubmit, task, projectMembers, darkMo
   React.useEffect(() => {
     if (task) {
       // Extract assignee IDs from assignees array
-      const assigneeIds = Array.isArray(task.assignees) 
+      const assigneeIds = Array.isArray(task.assignees)
         ? task.assignees.filter(a => a.user_id).map(a => a.user_id)
         : [];
-      
+
       setFormData({
         title: task.title || '',
         description: task.description || '',
@@ -585,7 +588,7 @@ const EditTaskModal = ({ isOpen, onClose, onSubmit, task, projectMembers, darkMo
     e.preventDefault();
     setLocalError(null);
     setIsSubmitting(true);
-    
+
     try {
       await onSubmit(formData);
       // Only close if submission succeeds
@@ -598,13 +601,11 @@ const EditTaskModal = ({ isOpen, onClose, onSubmit, task, projectMembers, darkMo
     }
   };
 
-  const inputClass = `w-full rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 transition-all ${
-    darkMode ? 'bg-dark-secondary border border-[#171717] text-gray-300' : 'bg-gray-200/30 border border-[rgb(161,188,152)] text-black'
-  }`;
+  const inputClass = `w-full rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 transition-all ${darkMode ? 'bg-dark-secondary border border-[#171717] text-gray-300' : 'bg-gray-200/30 border border-[rgb(161,188,152)] text-black'
+    }`;
 
-  const labelClass = `block text-sm font-bold mb-2 ${
-    darkMode ? 'text-gray-300' : 'text-gray-400'
-  }`;
+  const labelClass = `block text-sm font-bold mb-2 ${darkMode ? 'text-gray-300' : 'text-gray-400'
+    }`;
 
   if (!task) return null;
 
@@ -612,23 +613,20 @@ const EditTaskModal = ({ isOpen, onClose, onSubmit, task, projectMembers, darkMo
     <Modal isOpen={isOpen} onClose={onClose} title="Edit Task" darkMode={darkMode}>
       <form onSubmit={handleSubmit} className="space-y-4">
         {localError && (
-          <div className={`p-4 rounded-lg border-2 ${
-            darkMode ? 'bg-red-500/10 border-red-500/30' : 'bg-red-50 border-red-200'
-          }`}>
+          <div className={`p-4 rounded-lg border-2 ${darkMode ? 'bg-red-500/10 border-red-500/30' : 'bg-red-50 border-red-200'
+            }`}>
             <div className="flex items-start gap-3">
               <AlertCircle className="text-red-500 flex-shrink-0 mt-0.5" size={20} />
               <div className="flex-1">
-                <h4 className={`font-bold text-sm mb-1 ${
-                  darkMode ? 'text-red-400' : 'text-red-600'
-                }`}>Error Updating Task</h4>
-                <p className={`text-sm ${
-                  darkMode ? 'text-red-300' : 'text-red-500'
-                }`}>{localError}</p>
+                <h4 className={`font-bold text-sm mb-1 ${darkMode ? 'text-red-400' : 'text-red-600'
+                  }`}>Error Updating Task</h4>
+                <p className={`text-sm ${darkMode ? 'text-red-300' : 'text-red-500'
+                  }`}>{localError}</p>
               </div>
             </div>
           </div>
         )}
-        
+
         <div>
           <label className={labelClass}>Title *</label>
           <input
@@ -724,9 +722,8 @@ const EditTaskModal = ({ isOpen, onClose, onSubmit, task, projectMembers, darkMo
           <button
             type="button"
             onClick={onClose}
-            className={`flex-1 px-6 py-3 rounded-lg font-semibold transition-all ${
-              darkMode ? 'bg-[#171717] text-gray-300 hover:bg-gray-700' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-            }`}
+            className={`flex-1 px-6 py-3 rounded-lg font-semibold transition-all ${darkMode ? 'bg-[#171717] text-gray-300 hover:bg-gray-700' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+              }`}
           >
             Cancel
           </button>
@@ -758,7 +755,7 @@ const DeleteTaskModal = ({ isOpen, onClose, onConfirm, task, darkMode }) => {
   const handleDelete = async () => {
     setLocalError(null);
     setIsDeleting(true);
-    
+
     try {
       await onConfirm();
       // Only close if deletion succeeds
@@ -777,61 +774,50 @@ const DeleteTaskModal = ({ isOpen, onClose, onConfirm, task, darkMode }) => {
     <Modal isOpen={isOpen} onClose={onClose} title="Delete Task" darkMode={darkMode}>
       <div className="space-y-4">
         {localError && (
-          <div className={`p-4 rounded-lg border-2 ${
-            darkMode ? 'bg-red-500/10 border-red-500/30' : 'bg-red-50 border-red-200'
-          }`}>
+          <div className={`p-4 rounded-lg border-2 ${darkMode ? 'bg-red-500/10 border-red-500/30' : 'bg-red-50 border-red-200'
+            }`}>
             <div className="flex items-start gap-3">
               <AlertCircle className="text-red-500 flex-shrink-0 mt-0.5" size={20} />
               <div className="flex-1">
-                <h4 className={`font-bold text-sm mb-1 ${
-                  darkMode ? 'text-red-400' : 'text-red-600'
-                }`}>Error Deleting Task</h4>
-                <p className={`text-sm ${
-                  darkMode ? 'text-red-300' : 'text-red-500'
-                }`}>{localError}</p>
+                <h4 className={`font-bold text-sm mb-1 ${darkMode ? 'text-red-400' : 'text-red-600'
+                  }`}>Error Deleting Task</h4>
+                <p className={`text-sm ${darkMode ? 'text-red-300' : 'text-red-500'
+                  }`}>{localError}</p>
               </div>
             </div>
           </div>
         )}
-        
-        <div className={`p-4 rounded-lg border-2 ${
-          darkMode ? 'bg-red-500/10 border-red-500/30' : 'bg-red-50 border-red-200'
-        }`}>
+
+        <div className={`p-4 rounded-lg border-2 ${darkMode ? 'bg-red-500/10 border-red-500/30' : 'bg-red-50 border-red-200'
+          }`}>
           <div className="flex items-start gap-3">
             <AlertCircle className="text-red-500 flex-shrink-0 mt-0.5" size={20} />
             <div>
-              <h3 className={`font-bold mb-1 ${
-                darkMode ? 'text-red-400' : 'text-red-600'
-              }`}>Are you sure you want to delete this task?</h3>
-              <p className={`text-sm ${
-                darkMode ? 'text-red-300' : 'text-red-500'
-              }`}>This action cannot be undone.</p>
+              <h3 className={`font-bold mb-1 ${darkMode ? 'text-red-400' : 'text-red-600'
+                }`}>Are you sure you want to delete this task?</h3>
+              <p className={`text-sm ${darkMode ? 'text-red-300' : 'text-red-500'
+                }`}>This action cannot be undone.</p>
             </div>
           </div>
         </div>
 
-        <div className={`p-4 rounded-lg ${
-          darkMode ? 'bg-dark-secondary' : 'bg-gray-200/20'
-        }`}>
-          <p className={`text-sm font-medium mb-2 ${
-            darkMode ? 'text-gray-300' : 'text-gray-400'
-          }`}>Task Details:</p>
-          <h4 className={`font-bold text-lg ${
-            darkMode ? 'text-white' : 'text-black'
-          }`}>{sanitizeText(task.title)}</h4>
+        <div className={`p-4 rounded-lg ${darkMode ? 'bg-dark-secondary' : 'bg-gray-200/20'
+          }`}>
+          <p className={`text-sm font-medium mb-2 ${darkMode ? 'text-gray-300' : 'text-gray-400'
+            }`}>Task Details:</p>
+          <h4 className={`font-bold text-lg ${darkMode ? 'text-white' : 'text-black'
+            }`}>{sanitizeText(task.title)}</h4>
           {task.description && (
-            <p className={`text-sm mt-2 ${
-              darkMode ? 'text-gray-300' : 'text-gray-400'
-            }`}>{sanitizeText(task.description).substring(0, 100)}...</p>
+            <p className={`text-sm mt-2 ${darkMode ? 'text-gray-300' : 'text-gray-400'
+              }`}>{sanitizeText(task.description).substring(0, 100)}...</p>
           )}
         </div>
 
         <div className="flex gap-3 pt-4">
           <button
             onClick={onClose}
-            className={`flex-1 px-6 py-3 rounded-lg font-semibold transition-all ${
-              darkMode ? 'bg-[#171717] text-gray-300 hover:bg-gray-700' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-            }`}
+            className={`flex-1 px-6 py-3 rounded-lg font-semibold transition-all ${darkMode ? 'bg-[#171717] text-gray-300 hover:bg-gray-700' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+              }`}
           >
             Cancel
           </button>
@@ -855,7 +841,7 @@ export default function ProjectPage() {
   const { isDarkMode } = useOutletContext();
   const { teamId, projectId } = useParams();
   const navigate = useNavigate();
-  
+
   const [tasks, setTasks] = useState([]);
   const [projectData, setProjectData] = useState(null);
   const [projectMembers, setProjectMembers] = useState([]);
@@ -870,11 +856,48 @@ export default function ProjectPage() {
   const [showEditModal, setShowEditModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [selectedTask, setSelectedTask] = useState(null);
-  
+
   // AI Risk Analysis state
   const [riskReport, setRiskReport] = useState(null);
   const [riskLoading, setRiskLoading] = useState(false);
   const [showRiskCard, setShowRiskCard] = useState(true);
+
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const TASKS_PER_PAGE = 6;
+
+  // Pinned tasks state (stored in localStorage)
+  const [pinnedTasks, setPinnedTasks] = useState(() => {
+    try {
+      const saved = localStorage.getItem(`project_${projectId}_pinned_tasks`);
+      return saved ? JSON.parse(saved) : [];
+    } catch {
+      return [];
+    }
+  });
+
+  // Persist pinned tasks to localStorage
+  useEffect(() => {
+    if (projectId) {
+      localStorage.setItem(`project_${projectId}_pinned_tasks`, JSON.stringify(pinnedTasks));
+    }
+  }, [pinnedTasks, projectId]);
+
+  // Reset page when filters change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery, statusFilter, priorityFilter, assigneeFilter]);
+
+  // Toggle pin task handler
+  const togglePinTask = (taskId) => {
+    setPinnedTasks(prev => {
+      if (prev.includes(taskId)) {
+        return prev.filter(id => id !== taskId);
+      } else {
+        return [...prev, taskId];
+      }
+    });
+  };
 
   const userRole = projectData?.user_role || 'viewer'; // Get role from API response
 
@@ -967,8 +990,8 @@ export default function ProjectPage() {
 
   // Filter and sort tasks
   const filteredTasks = tasks.filter(task => {
-    if (searchQuery && !sanitizeText(task.title.toLowerCase()).includes(sanitizeText(searchQuery.toLowerCase())) && 
-        !sanitizeText(task.description?.toLowerCase() || '').includes(sanitizeText(searchQuery.toLowerCase()))) {
+    if (searchQuery && !sanitizeText(task.title.toLowerCase()).includes(sanitizeText(searchQuery.toLowerCase())) &&
+      !sanitizeText(task.description?.toLowerCase() || '').includes(sanitizeText(searchQuery.toLowerCase()))) {
       return false;
     }
     if (statusFilter !== 'all' && task.status !== statusFilter) return false;
@@ -979,6 +1002,14 @@ export default function ProjectPage() {
     }
     return true;
   }).sort((a, b) => {
+    // PRIORITY: Pinned tasks always come first
+    const aIsPinned = pinnedTasks.includes(a.id);
+    const bIsPinned = pinnedTasks.includes(b.id);
+
+    if (aIsPinned && !bIsPinned) return -1;
+    if (!aIsPinned && bIsPinned) return 1;
+
+    // Within same pin status, apply regular sorting
     switch (sortBy) {
       case 'due_date':
         return new Date(a.due_date || '9999-12-31') - new Date(b.due_date || '9999-12-31');
@@ -994,6 +1025,13 @@ export default function ProjectPage() {
         return 0;
     }
   });
+
+  // Pagination calculations
+  const totalPages = Math.ceil(filteredTasks.length / TASKS_PER_PAGE);
+  const paginatedTasks = filteredTasks.slice(
+    (currentPage - 1) * TASKS_PER_PAGE,
+    currentPage * TASKS_PER_PAGE
+  );
 
   const stats = {
     total: tasks.length,
@@ -1012,14 +1050,14 @@ export default function ProjectPage() {
   const handleEditSubmit = async (formData) => {
     const updates = { ...formData };
     if (updates.due_date) updates.due_date = new Date(updates.due_date).toISOString();
-    
+
     const response = await projectApi.updateTask(projectId, selectedTask.id, updates);
-    
+
     if (response.success) {
       // Refetch tasks to get updated assignees array
       await refetchTasks();
       setSelectedTask(null);
-      console.log('✅ Task updated:', response.message);
+      console.log('Task updated:', response.message);
     } else {
       throw new Error(response.message || 'Failed to update task');
     }
@@ -1032,11 +1070,11 @@ export default function ProjectPage() {
 
   const handleDeleteConfirm = async () => {
     const response = await projectApi.deleteTask(projectId, selectedTask.id);
-    
+
     if (response.success) {
       setTasks(tasks.filter(t => t.id !== selectedTask.id));
       setSelectedTask(null);
-      console.log('✅ Task deleted:', response.message);
+      console.log('Task deleted:', response.message);
     } else {
       throw new Error(response.message || 'Failed to delete task');
     }
@@ -1050,13 +1088,13 @@ export default function ProjectPage() {
     const taskData = { ...formData };
     // assignee_ids is already an array of integers from the checkbox handler
     if (taskData.due_date) taskData.due_date = new Date(taskData.due_date).toISOString();
-    
+
     const response = await projectApi.createTask(projectId, taskData);
-    
+
     if (response.success) {
       // Refetch tasks to get new task with populated assignees array
       await refetchTasks();
-      console.log('✅ Task created:', response.message);
+      console.log('Task created:', response.message);
     } else {
       throw new Error(response.message || 'Failed to create task');
     }
@@ -1066,9 +1104,9 @@ export default function ProjectPage() {
     <>
       <div className="p-6 md:p-8">
         <div className="max-w-7xl mx-auto">
-          
+
           {/* Back Button */}
-          <button 
+          <button
             onClick={() => navigate(`/teams/${teamId}`)}
             className={`flex items-center gap-2 mb-6 ${isDarkMode ? 'text-gray-300 hover:text-gray-300' : 'text-gray-400 hover:text-black'} transition-colors`}
           >
@@ -1090,7 +1128,7 @@ export default function ProjectPage() {
               <AlertCircle size={48} className="text-red-500 mx-auto mb-4" />
               <h3 className="text-lg font-bold text-red-500 mb-2">Failed to Load Project</h3>
               <p className="text-red-400">{error}</p>
-              <button 
+              <button
                 onClick={() => window.location.reload()}
                 className="mt-4 bg-red-500 hover:bg-red-600 text-white px-6 py-2 rounded-lg font-semibold transition-colors"
               >
@@ -1121,11 +1159,10 @@ export default function ProjectPage() {
                         <Calendar size={12} />
                         {formatDate(projectData.start_date)} - {formatDate(projectData.end_date)}
                       </span>
-                      <span className={`inline-flex items-center gap-1.5 text-xs font-bold px-3 py-1.5 rounded-full ${
-                        userRole === 'lead' ? 'bg-purple-500/10 text-purple-500' :
+                      <span className={`inline-flex items-center gap-1.5 text-xs font-bold px-3 py-1.5 rounded-full ${userRole === 'lead' ? 'bg-purple-500/10 text-purple-500' :
                         userRole === 'editor' ? 'bg-blue-500/10 text-blue-500' :
-                        'bg-slate-500/10 text-slate-500'
-                      }`}>
+                          'bg-slate-500/10 text-slate-500'
+                        }`}>
                         <User size={12} />
                         Your Role: {userRole}
                       </span>
@@ -1210,7 +1247,7 @@ export default function ProjectPage() {
               {/* Smart Filter Bar - Single Row */}
               <div className={`${cardBg} border rounded-xl p-4 mb-6`}>
                 <div className="flex items-center justify-between gap-3 flex-wrap">
-                  
+
                   {/* Left Group: Search + Filter Dropdowns */}
                   <div className="flex items-center gap-3 flex-1 min-w-[300px]">
                     {/* Compact Search */}
@@ -1227,18 +1264,17 @@ export default function ProjectPage() {
 
                     {/* Status Dropdown */}
                     <div className="relative">
-                      <select 
-                        value={statusFilter} 
+                      <select
+                        value={statusFilter}
                         onChange={(e) => setStatusFilter(e.target.value)}
-                        className={`appearance-none rounded-lg pl-3 pr-8 py-2 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-blue-500/20 transition-all ${
-                          statusFilter !== 'all'
-                            ? isDarkMode
-                              ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30'
-                              : 'bg-blue-50 text-blue-600 border border-blue-200'
-                            : isDarkMode
+                        className={`appearance-none rounded-lg pl-3 pr-8 py-2 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-blue-500/20 transition-all ${statusFilter !== 'all'
+                          ? isDarkMode
+                            ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30'
+                            : 'bg-blue-50 text-blue-600 border border-blue-200'
+                          : isDarkMode
                             ? 'bg-[#171717] text-gray-300 border border-[#171717] hover:bg-gray-700'
                             : 'bg-gray-200/50 text-gray-600 border border-gray-200 hover:bg-gray-200'
-                        }`}
+                          }`}
                       >
                         <option value="all">Status: All</option>
                         <option value="todo">Status: To Do</option>
@@ -1251,26 +1287,25 @@ export default function ProjectPage() {
 
                     {/* Priority Dropdown */}
                     <div className="relative">
-                      <select 
-                        value={priorityFilter} 
+                      <select
+                        value={priorityFilter}
                         onChange={(e) => setPriorityFilter(e.target.value)}
-                        className={`appearance-none rounded-lg pl-3 pr-8 py-2 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-blue-500/20 transition-all ${
-                          priorityFilter !== 'all'
-                            ? priorityFilter === 'urgent'
-                              ? isDarkMode
-                                ? 'bg-red-500/20 text-red-400 border border-red-500/30'
-                                : 'bg-red-50 text-red-600 border border-red-200'
-                              : priorityFilter === 'high'
+                        className={`appearance-none rounded-lg pl-3 pr-8 py-2 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-blue-500/20 transition-all ${priorityFilter !== 'all'
+                          ? priorityFilter === 'urgent'
+                            ? isDarkMode
+                              ? 'bg-red-500/20 text-red-400 border border-red-500/30'
+                              : 'bg-red-50 text-red-600 border border-red-200'
+                            : priorityFilter === 'high'
                               ? isDarkMode
                                 ? 'bg-orange-500/20 text-orange-400 border border-orange-500/30'
                                 : 'bg-orange-50 text-orange-600 border border-orange-200'
                               : isDarkMode
-                              ? 'bg-amber-500/20 text-amber-400 border border-amber-500/30'
-                              : 'bg-amber-50 text-amber-600 border border-amber-200'
-                            : isDarkMode
+                                ? 'bg-amber-500/20 text-amber-400 border border-amber-500/30'
+                                : 'bg-amber-50 text-amber-600 border border-amber-200'
+                          : isDarkMode
                             ? 'bg-[#171717] text-gray-300 border border-[#171717] hover:bg-gray-700'
                             : 'bg-gray-200/50 text-gray-600 border border-gray-200 hover:bg-gray-200'
-                        }`}
+                          }`}
                       >
                         <option value="all">Priority: All</option>
                         <option value="urgent">Priority: Urgent</option>
@@ -1283,18 +1318,17 @@ export default function ProjectPage() {
 
                     {/* Assignee Dropdown */}
                     <div className="relative">
-                      <select 
-                        value={assigneeFilter} 
+                      <select
+                        value={assigneeFilter}
                         onChange={(e) => setAssigneeFilter(e.target.value)}
-                        className={`appearance-none rounded-lg pl-3 pr-8 py-2 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-blue-500/20 transition-all ${
-                          assigneeFilter !== 'all'
-                            ? isDarkMode
-                              ? 'bg-purple-500/20 text-purple-400 border border-purple-500/30'
-                              : 'bg-purple-50 text-purple-600 border border-purple-200'
-                            : isDarkMode
+                        className={`appearance-none rounded-lg pl-3 pr-8 py-2 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-blue-500/20 transition-all ${assigneeFilter !== 'all'
+                          ? isDarkMode
+                            ? 'bg-purple-500/20 text-purple-400 border border-purple-500/30'
+                            : 'bg-purple-50 text-purple-600 border border-purple-200'
+                          : isDarkMode
                             ? 'bg-[#171717] text-gray-300 border border-[#171717] hover:bg-gray-700'
                             : 'bg-gray-200/50 text-gray-600 border border-gray-200 hover:bg-gray-200'
-                        }`}
+                          }`}
                       >
                         <option value="all">Assignee: All</option>
                         {projectMembers.map(member => (
@@ -1310,14 +1344,13 @@ export default function ProjectPage() {
                   <div className="flex items-center gap-3">
                     {/* Sort Dropdown */}
                     <div className="relative">
-                      <select 
-                        value={sortBy} 
+                      <select
+                        value={sortBy}
                         onChange={(e) => setSortBy(e.target.value)}
-                        className={`appearance-none rounded-lg pl-3 pr-8 py-2 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-blue-500/20 transition-all ${
-                          isDarkMode 
-                            ? 'bg-[#171717] text-gray-300 border border-[#171717] hover:bg-gray-700' 
-                            : 'bg-gray-200/50 text-gray-600 border border-gray-200 hover:bg-gray-200'
-                        }`}
+                        className={`appearance-none rounded-lg pl-3 pr-8 py-2 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-blue-500/20 transition-all ${isDarkMode
+                          ? 'bg-[#171717] text-gray-300 border border-[#171717] hover:bg-gray-700'
+                          : 'bg-gray-200/50 text-gray-600 border border-gray-200 hover:bg-gray-200'
+                          }`}
                       >
                         <option value="due_date">Sort: Due Date</option>
                         <option value="priority">Sort: Priority</option>
@@ -1372,18 +1405,70 @@ export default function ProjectPage() {
                     <p className={`${isDarkMode ? 'text-gray-300' : 'text-gray-400'}`}>Try adjusting your filters or search query</p>
                   </div>
                 ) : (
-                  <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-                    {filteredTasks.map(task => (
-                      <TaskCard
-                        key={task.id}
-                        task={task}
-                        darkMode={isDarkMode}
-                        userRole={userRole}
-                        onEdit={handleEditTask}
-                        onDelete={handleDeleteTask}
-                      />
-                    ))}
-                  </div>
+                  <>
+                    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                      {paginatedTasks.map(task => (
+                        <TaskCard
+                          key={task.id}
+                          task={task}
+                          darkMode={isDarkMode}
+                          userRole={userRole}
+                          onEdit={handleEditTask}
+                          onDelete={handleDeleteTask}
+                          isPinned={pinnedTasks.includes(task.id)}
+                          onTogglePin={togglePinTask}
+                        />
+                      ))}
+                    </div>
+
+                    {/* Pagination Controls */}
+                    {totalPages > 1 && (
+                      <div className="flex items-center justify-center gap-2 mt-6">
+                        {/* Previous Button */}
+                        <button
+                          onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                          disabled={currentPage === 1}
+                          className={`p-2 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${isDarkMode ? 'hover:bg-[#171717] text-gray-300' : 'hover:bg-gray-200 text-gray-600'
+                            }`}
+                        >
+                          <ChevronLeft size={20} />
+                        </button>
+
+                        {/* Page Numbers */}
+                        <div className="flex items-center gap-1">
+                          {Array.from({ length: totalPages }, (_, i) => i + 1).map(pageNum => (
+                            <button
+                              key={pageNum}
+                              onClick={() => setCurrentPage(pageNum)}
+                              className={`min-w-[36px] h-9 px-3 rounded-lg text-sm font-medium transition-colors ${currentPage === pageNum
+                                  ? 'bg-[#006239] text-white'
+                                  : isDarkMode
+                                    ? 'hover:bg-[#171717] text-gray-300'
+                                    : 'hover:bg-gray-200 text-gray-600'
+                                }`}
+                            >
+                              {pageNum}
+                            </button>
+                          ))}
+                        </div>
+
+                        {/* Next Button */}
+                        <button
+                          onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                          disabled={currentPage === totalPages}
+                          className={`p-2 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${isDarkMode ? 'hover:bg-[#171717] text-gray-300' : 'hover:bg-gray-200 text-gray-600'
+                            }`}
+                        >
+                          <ChevronRight size={20} />
+                        </button>
+
+                        {/* Page Info */}
+                        <span className={`ml-3 text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                          Page {currentPage} of {totalPages}
+                        </span>
+                      </div>
+                    )}
+                  </>
                 )}
               </div>
             </>
