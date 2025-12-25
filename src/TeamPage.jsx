@@ -2726,7 +2726,7 @@ export default function TeamPage() {
     mutationFn: () => deleteTeam(teamId),
     onSuccess: () => {
       queryClient.invalidateQueries(['teams']); // Refresh sidebar
-      navigate('/teams/1'); // Navigate to first team (or could show "no teams" page)
+      navigate('/dashboard'); // Navigate to dashboard
     },
   });
 
