@@ -3,10 +3,10 @@ import { useOutletContext, useParams, useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { z } from 'zod';
 import toast from 'react-hot-toast';
-import { 
-  getTeam, 
-  getTeamProjects, 
-  getTeamStats, 
+import {
+  getTeam,
+  getTeamProjects,
+  getTeamStats,
   getTeamMembers,
   updateTeam,
   deleteTeam,
@@ -27,9 +27,9 @@ import {
 } from './services/projectApi';
 import { useDebounce } from './hooks/useDebounce';
 import { useAuth } from './hooks/useAuth';
-import { 
-  LayoutDashboard, 
-  FolderKanban, 
+import {
+  LayoutDashboard,
+  FolderKanban,
   CheckCircle2,
   Clock,
   AlertCircle,
@@ -64,9 +64,8 @@ const renderUserAvatar = (user, size = 'md', darkMode = false) => {
       <img
         src={user.avatar_url}
         alt={user.username || 'User'}
-        className={`${sizeClasses[size]} rounded-full object-cover border-2 ${
-          darkMode ? 'border-[rgb(30,36,30)]' : 'border-white'
-        }`}
+        className={`${sizeClasses[size]} rounded-full object-cover border-2 ${darkMode ? 'border-[rgb(30,36,30)]' : 'border-white'
+          }`}
         onError={(e) => {
           // Fallback to initials if image fails to load
           e.target.style.display = 'none';
@@ -77,9 +76,8 @@ const renderUserAvatar = (user, size = 'md', darkMode = false) => {
   }
 
   return (
-    <div className={`${sizeClasses[size]} rounded-full flex items-center justify-center font-medium ${
-      darkMode ? 'bg-[#006239] text-white' : 'bg-gray-200 text-black'
-    }`}>
+    <div className={`${sizeClasses[size]} rounded-full flex items-center justify-center font-medium ${darkMode ? 'bg-[#006239] text-white' : 'bg-gray-200 text-black'
+      }`}>
       {user.username?.substring(0, 2).toUpperCase() || 'U'}
     </div>
   );
@@ -190,30 +188,26 @@ const Modal = ({ isOpen, onClose, title, children, darkMode }) => {
   }, [isOpen, onClose]);
 
   return (
-    <div 
+    <div
       className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm overflow-y-auto"
       onClick={onClose}
     >
-      <div 
-        className={`w-full max-w-lg rounded-xl shadow-2xl my-8 overflow-hidden ${
-          darkMode ? 'bg-dark-secondary border border-[#171717]' : 'bg-white border border-gray-200'
-        }`}
+      <div
+        className={`w-full max-w-lg rounded-xl shadow-2xl my-8 overflow-hidden ${darkMode ? 'bg-dark-secondary border border-[#171717]' : 'bg-white border border-gray-200'
+          }`}
         onClick={(e) => e.stopPropagation()}
       >
-        <div className={`sticky top-0 z-10 ${
-          darkMode ? 'bg-dark-secondary' : 'bg-white'
-        }`}>
-          <div className={`flex items-center justify-between p-6 border-b ${
-            darkMode ? 'border-[#171717]' : 'border-gray-200'
+        <div className={`sticky top-0 z-10 ${darkMode ? 'bg-dark-secondary' : 'bg-white'
           }`}>
+          <div className={`flex items-center justify-between p-6 border-b ${darkMode ? 'border-[#171717]' : 'border-gray-200'
+            }`}>
             <h2 className={`text-xl font-bold ${darkMode ? 'text-white' : 'text-black'}`}>
               {title}
             </h2>
             <button
               onClick={onClose}
-              className={`p-2 rounded-lg transition-colors ${
-                darkMode ? 'hover:bg-[#171717] text-gray-400' : 'hover:bg-gray-100 text-gray-600'
-              }`}
+              className={`p-2 rounded-lg transition-colors ${darkMode ? 'hover:bg-[#171717] text-gray-400' : 'hover:bg-gray-100 text-gray-600'
+                }`}
             >
               <X size={20} />
             </button>
@@ -295,7 +289,7 @@ const EditTeamModal = ({ isOpen, onClose, team, onSubmit, darkMode, teamId, quer
 
     try {
       await onSubmit(formData);
-      
+
       // SUCCESS: Only close modal if no error thrown
       onClose();
     } catch (err) {
@@ -317,13 +311,12 @@ const EditTeamModal = ({ isOpen, onClose, team, onSubmit, darkMode, teamId, quer
 
   const getInputClass = (fieldName) => {
     const hasError = fieldErrors[fieldName];
-    return `w-full rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 transition-all ${
-      hasError 
-        ? 'border-2 border-red-500 focus:ring-red-500/50 bg-red-50 dark:bg-red-500/10' 
-        : darkMode 
-          ? 'bg-dark-secondary border border-[#171717] text-white focus:ring-blue-500/20' 
+    return `w-full rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 transition-all ${hasError
+        ? 'border-2 border-red-500 focus:ring-red-500/50 bg-red-50 dark:bg-red-500/10'
+        : darkMode
+          ? 'bg-dark-secondary border border-[#171717] text-white focus:ring-blue-500/20'
           : 'bg-white border border-gray-200 text-black focus:ring-blue-500/20'
-    }`;
+      }`;
   };
 
   const labelClass = `block text-sm font-bold mb-2 ${darkMode ? 'text-gray-300' : 'text-gray-400'}`;
@@ -335,22 +328,20 @@ const EditTeamModal = ({ isOpen, onClose, team, onSubmit, darkMode, teamId, quer
         <button
           type="button"
           onClick={() => setActiveTab('general')}
-          className={`px-4 py-2.5 text-sm font-medium border-b-2 transition-colors ${
-            activeTab === 'general'
+          className={`px-4 py-2.5 text-sm font-medium border-b-2 transition-colors ${activeTab === 'general'
               ? `border-[#006239] ${darkMode ? 'text-white' : 'text-black'}`
               : `border-transparent ${darkMode ? 'text-gray-400 hover:text-gray-300' : 'text-gray-500 hover:text-gray-700'}`
-          }`}
+            }`}
         >
           General
         </button>
         <button
           type="button"
           onClick={() => setActiveTab('members')}
-          className={`px-4 py-2.5 text-sm font-medium border-b-2 transition-colors ${
-            activeTab === 'members'
+          className={`px-4 py-2.5 text-sm font-medium border-b-2 transition-colors ${activeTab === 'members'
               ? `border-[#006239] ${darkMode ? 'text-white' : 'text-black'}`
               : `border-transparent ${darkMode ? 'text-gray-400 hover:text-gray-300' : 'text-gray-500 hover:text-gray-700'}`
-          }`}
+            }`}
         >
           Members ({members.length})
         </button>
@@ -406,9 +397,8 @@ const EditTeamModal = ({ isOpen, onClose, team, onSubmit, darkMode, teamId, quer
           </div>
 
           {error && (
-            <div className={`p-3 rounded-lg border ${
-              darkMode ? 'bg-red-500/10 border-red-500/30 text-red-400' : 'bg-red-50 border-red-200 text-red-600'
-            }`}>
+            <div className={`p-3 rounded-lg border ${darkMode ? 'bg-red-500/10 border-red-500/30 text-red-400' : 'bg-red-50 border-red-200 text-red-600'
+              }`}>
               <div className="flex items-start gap-2">
                 <AlertCircle size={18} className="flex-shrink-0 mt-0.5" />
                 <p className="text-sm">{error}</p>
@@ -421,9 +411,8 @@ const EditTeamModal = ({ isOpen, onClose, team, onSubmit, darkMode, teamId, quer
               type="button"
               onClick={onClose}
               disabled={isSubmitting}
-              className={`flex-1 px-6 py-3 rounded-lg font-semibold transition-all ${
-                darkMode ? 'bg-[#171717] text-gray-300 hover:bg-gray-700' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-              } disabled:opacity-50`}
+              className={`flex-1 px-6 py-3 rounded-lg font-semibold transition-all ${darkMode ? 'bg-[#171717] text-gray-300 hover:bg-gray-700' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                } disabled:opacity-50`}
             >
               Cancel
             </button>
@@ -444,7 +433,7 @@ const EditTeamModal = ({ isOpen, onClose, team, onSubmit, darkMode, teamId, quer
           <div className={`text-xs ${darkMode ? 'text-gray-400' : 'text-gray-500'} mb-4`}>
             Manage team members. Only owners can remove other members.
           </div>
-          
+
           {members.length === 0 ? (
             <div className={`text-center py-8 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
               <Users size={32} className="mx-auto mb-2 opacity-50" />
@@ -455,9 +444,8 @@ const EditTeamModal = ({ isOpen, onClose, team, onSubmit, darkMode, teamId, quer
               {members.map((member) => (
                 <div
                   key={member.id}
-                  className={`flex items-center justify-between p-3 rounded-lg border ${
-                    darkMode ? 'bg-[#171717] border-[#171717]' : 'bg-gray-50 border-gray-200'
-                  }`}
+                  className={`flex items-center justify-between p-3 rounded-lg border ${darkMode ? 'bg-[#171717] border-[#171717]' : 'bg-gray-50 border-gray-200'
+                    }`}
                 >
                   <div className="flex items-center gap-3">
                     {renderUserAvatar(member, 'sm', darkMode)}
@@ -474,13 +462,12 @@ const EditTeamModal = ({ isOpen, onClose, team, onSubmit, darkMode, teamId, quer
                   <div className="flex items-center gap-2">
                     {/* Role Badge */}
                     <span
-                      className={`px-2.5 py-1 text-xs font-medium rounded-full ${
-                        member.role === 'owner'
+                      className={`px-2.5 py-1 text-xs font-medium rounded-full ${member.role === 'owner'
                           ? 'bg-purple-500/20 text-purple-400'
                           : member.role === 'admin'
-                          ? 'bg-blue-500/20 text-blue-400'
-                          : 'bg-gray-500/20 text-gray-400'
-                      }`}
+                            ? 'bg-blue-500/20 text-blue-400'
+                            : 'bg-gray-500/20 text-gray-400'
+                        }`}
                     >
                       {member.role}
                     </span>
@@ -491,11 +478,10 @@ const EditTeamModal = ({ isOpen, onClose, team, onSubmit, darkMode, teamId, quer
                         type="button"
                         onClick={() => handleRemoveMember(member.user_id)}
                         disabled={removeMemberMutation.isLoading}
-                        className={`p-1.5 rounded-lg transition-colors ${
-                          darkMode
+                        className={`p-1.5 rounded-lg transition-colors ${darkMode
                             ? 'hover:bg-red-500/20 text-red-400'
                             : 'hover:bg-red-50 text-red-600'
-                        } disabled:opacity-50`}
+                          } disabled:opacity-50`}
                         title="Remove member"
                       >
                         <Trash2 size={14} />
@@ -511,9 +497,8 @@ const EditTeamModal = ({ isOpen, onClose, team, onSubmit, darkMode, teamId, quer
             <button
               type="button"
               onClick={onClose}
-              className={`flex-1 px-6 py-3 rounded-lg font-semibold transition-all ${
-                darkMode ? 'bg-[#171717] text-gray-300 hover:bg-gray-700' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-              }`}
+              className={`flex-1 px-6 py-3 rounded-lg font-semibold transition-all ${darkMode ? 'bg-[#171717] text-gray-300 hover:bg-gray-700' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                }`}
             >
               Close
             </button>
@@ -554,16 +539,14 @@ const DeleteTeamModal = ({ isOpen, onClose, team, onConfirm, darkMode }) => {
     }
   };
 
-  const inputClass = `w-full rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-red-500/50 transition-all ${
-    darkMode ? 'bg-dark-secondary border border-[#171717] text-white' : 'bg-white border border-gray-200 text-black'
-  }`;
+  const inputClass = `w-full rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-red-500/50 transition-all ${darkMode ? 'bg-dark-secondary border border-[#171717] text-white' : 'bg-white border border-gray-200 text-black'
+    }`;
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} title="Delete Team" darkMode={darkMode}>
       <div className="space-y-4">
-        <div className={`p-4 rounded-lg border-2 ${
-          darkMode ? 'bg-red-500/10 border-red-500/30' : 'bg-red-50 border-red-200'
-        }`}>
+        <div className={`p-4 rounded-lg border-2 ${darkMode ? 'bg-red-500/10 border-red-500/30' : 'bg-red-50 border-red-200'
+          }`}>
           <div className="flex items-start gap-3">
             <AlertCircle className="text-red-500 flex-shrink-0 mt-0.5" size={20} />
             <div>
@@ -597,9 +580,8 @@ const DeleteTeamModal = ({ isOpen, onClose, team, onConfirm, darkMode }) => {
         </div>
 
         {error && (
-          <div className={`p-3 rounded-lg border ${
-            darkMode ? 'bg-red-500/10 border-red-500/30 text-red-400' : 'bg-red-50 border-red-200 text-red-600'
-          }`}>
+          <div className={`p-3 rounded-lg border ${darkMode ? 'bg-red-500/10 border-red-500/30 text-red-400' : 'bg-red-50 border-red-200 text-red-600'
+            }`}>
             <div className="flex items-start gap-2">
               <AlertCircle size={18} className="flex-shrink-0 mt-0.5" />
               <p className="text-sm">{error}</p>
@@ -612,9 +594,8 @@ const DeleteTeamModal = ({ isOpen, onClose, team, onConfirm, darkMode }) => {
             type="button"
             onClick={onClose}
             disabled={isDeleting}
-            className={`flex-1 px-6 py-3 rounded-lg font-semibold transition-all ${
-              darkMode ? 'bg-[#171717] text-gray-300 hover:bg-[#171717]/70' : 'bg-gray-200/50 text-gray-400 hover:bg-gray-200'
-            } disabled:opacity-50`}
+            className={`flex-1 px-6 py-3 rounded-lg font-semibold transition-all ${darkMode ? 'bg-[#171717] text-gray-300 hover:bg-[#171717]/70' : 'bg-gray-200/50 text-gray-400 hover:bg-gray-200'
+              } disabled:opacity-50`}
           >
             Cancel
           </button>
@@ -658,25 +639,21 @@ const LeaveTeamModal = ({ isOpen, onClose, team, onConfirm, darkMode }) => {
   return (
     <Modal isOpen={isOpen} onClose={onClose} title="Leave Team" darkMode={darkMode}>
       <div className="space-y-4">
-        <div className={`p-4 rounded-lg border-2 ${
-          darkMode ? 'bg-yellow-500/10 border-yellow-500/30' : 'bg-yellow-50 border-yellow-200'
-        }`}>
+        <div className={`p-4 rounded-lg border-2 ${darkMode ? 'bg-yellow-500/10 border-yellow-500/30' : 'bg-yellow-50 border-yellow-200'
+          }`}>
           <div className="flex items-start gap-3">
             <AlertCircle className="text-yellow-500 flex-shrink-0 mt-0.5" size={20} />
             <div>
-              <h4 className={`font-bold text-sm mb-1 ${
-                darkMode ? 'text-yellow-400' : 'text-yellow-600'
-              }`}>
+              <h4 className={`font-bold text-sm mb-1 ${darkMode ? 'text-yellow-400' : 'text-yellow-600'
+                }`}>
                 Are you sure you want to leave this team?
               </h4>
-              <p className={`text-sm ${
-                darkMode ? 'text-yellow-300' : 'text-yellow-600'
-              }`}>
+              <p className={`text-sm ${darkMode ? 'text-yellow-300' : 'text-yellow-600'
+                }`}>
                 Leaving <span className="font-bold">{team?.name}</span> will remove your access to:
               </p>
-              <ul className={`text-xs mt-2 space-y-1 list-disc list-inside ${
-                darkMode ? 'text-yellow-300' : 'text-yellow-600'
-              }`}>
+              <ul className={`text-xs mt-2 space-y-1 list-disc list-inside ${darkMode ? 'text-yellow-300' : 'text-yellow-600'
+                }`}>
                 <li>All projects in this team</li>
                 <li>All tasks you're assigned to</li>
                 <li>Team chat and channels</li>
@@ -687,9 +664,8 @@ const LeaveTeamModal = ({ isOpen, onClose, team, onConfirm, darkMode }) => {
         </div>
 
         {error && (
-          <div className={`p-3 rounded-lg border ${
-            darkMode ? 'bg-red-500/10 border-red-500/30 text-red-400' : 'bg-red-50 border-red-200 text-red-600'
-          }`}>
+          <div className={`p-3 rounded-lg border ${darkMode ? 'bg-red-500/10 border-red-500/30 text-red-400' : 'bg-red-50 border-red-200 text-red-600'
+            }`}>
             <div className="flex items-start gap-2">
               <AlertCircle size={18} className="flex-shrink-0 mt-0.5" />
               <p className="text-sm">{error}</p>
@@ -702,9 +678,8 @@ const LeaveTeamModal = ({ isOpen, onClose, team, onConfirm, darkMode }) => {
             type="button"
             onClick={onClose}
             disabled={isLeaving}
-            className={`flex-1 px-6 py-3 rounded-lg font-semibold transition-all ${
-              darkMode ? 'bg-[#171717] text-gray-300 hover:bg-[#171717]/70' : 'bg-gray-200/50 text-gray-400 hover:bg-gray-200'
-            } disabled:opacity-50`}
+            className={`flex-1 px-6 py-3 rounded-lg font-semibold transition-all ${darkMode ? 'bg-[#171717] text-gray-300 hover:bg-[#171717]/70' : 'bg-gray-200/50 text-gray-400 hover:bg-gray-200'
+              } disabled:opacity-50`}
           >
             Cancel
           </button>
@@ -729,7 +704,7 @@ const InviteMemberModal = ({ isOpen, onClose, teamId, darkMode }) => {
   const [selectedUser, setSelectedUser] = useState(null);
   const [selectedRole, setSelectedRole] = useState('member');
   const [isSubmitting, setIsSubmitting] = useState(false);
-  
+
   // Debounce search query to avoid spamming API
   const debouncedQuery = useDebounce(searchQuery, 300);
 
@@ -767,7 +742,7 @@ const InviteMemberModal = ({ isOpen, onClose, teamId, darkMode }) => {
 
   const handleInvite = () => {
     if (!selectedUser) return;
-    
+
     setIsSubmitting(true);
     inviteMutation.mutate(
       { email: selectedUser.email, role: selectedRole },
@@ -779,14 +754,14 @@ const InviteMemberModal = ({ isOpen, onClose, teamId, darkMode }) => {
   const getUserAvatar = (user) => {
     if (user.avatar_url) {
       return (
-        <img 
-          src={user.avatar_url} 
+        <img
+          src={user.avatar_url}
           alt={user.username}
           className="w-8 h-8 rounded-full object-cover"
         />
       );
     }
-    
+
     // Fallback to initials
     const initials = user.username
       .split(' ')
@@ -794,11 +769,10 @@ const InviteMemberModal = ({ isOpen, onClose, teamId, darkMode }) => {
       .join('')
       .toUpperCase()
       .slice(0, 2);
-    
+
     return (
-      <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold ${
-        darkMode ? 'bg-[#006239] text-black' : 'bg-[#006239] text-white'
-      }`}>
+      <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold ${darkMode ? 'bg-[#006239] text-black' : 'bg-[#006239] text-white'
+        }`}>
         {initials}
       </div>
     );
@@ -842,11 +816,10 @@ const InviteMemberModal = ({ isOpen, onClose, teamId, darkMode }) => {
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Type to search users..."
-              className={`w-full rounded-lg px-4 py-2.5 pr-10 text-sm focus:outline-none focus:ring-2 transition-all ${
-                darkMode 
-                  ? 'bg-dark-secondary border border-[#171717] text-white focus:ring-blue-500/20 placeholder:text-gray-400' 
+              className={`w-full rounded-lg px-4 py-2.5 pr-10 text-sm focus:outline-none focus:ring-2 transition-all ${darkMode
+                  ? 'bg-dark-secondary border border-[#171717] text-white focus:ring-blue-500/20 placeholder:text-gray-400'
                   : 'bg-white border border-gray-200 text-black focus:ring-blue-500/20 placeholder:text-gray-600'
-              }`}
+                }`}
             />
             <div className="absolute right-3 top-1/2 -translate-y-1/2">
               {isSearching ? (
@@ -860,9 +833,8 @@ const InviteMemberModal = ({ isOpen, onClose, teamId, darkMode }) => {
 
         {/* Search Results */}
         {debouncedQuery.length > 0 && (
-          <div className={`border rounded-lg max-h-60 overflow-y-auto ${
-            darkMode ? 'border-[#171717]' : 'border-gray-200'
-          }`}>
+          <div className={`border rounded-lg max-h-60 overflow-y-auto ${darkMode ? 'border-[#171717]' : 'border-gray-200'
+            }`}>
             {isSearching ? (
               <div className="flex items-center justify-center py-8">
                 <Loader2 size={24} className="animate-spin text-gray-400" />
@@ -872,24 +844,23 @@ const InviteMemberModal = ({ isOpen, onClose, teamId, darkMode }) => {
                 {searchResults.map((user) => {
                   const isDisabled = user.status !== 'none';
                   const isSelected = selectedUser?.id === user.id;
-                  
+
                   return (
                     <button
                       key={user.id}
                       type="button"
                       onClick={() => !isDisabled && setSelectedUser(user)}
                       disabled={isDisabled}
-                      className={`w-full p-3 flex items-center gap-3 transition-all text-left ${
-                        isDisabled 
-                          ? 'cursor-not-allowed' 
+                      className={`w-full p-3 flex items-center gap-3 transition-all text-left ${isDisabled
+                          ? 'cursor-not-allowed'
                           : isSelected
-                            ? darkMode 
-                              ? 'bg-blue-500/20' 
+                            ? darkMode
+                              ? 'bg-blue-500/20'
                               : 'bg-blue-100'
                             : darkMode
                               ? 'hover:bg-[#171717]'
                               : 'hover:bg-gray-50'
-                      }`}
+                        }`}
                     >
                       <div className={`flex items-center gap-3 flex-1 min-w-0 ${isDisabled ? 'opacity-50' : ''}`}>
                         {getUserAvatar(user)}
@@ -919,11 +890,10 @@ const InviteMemberModal = ({ isOpen, onClose, teamId, darkMode }) => {
 
         {/* Selected User Display */}
         {selectedUser && (
-          <div className={`p-3 rounded-lg border ${
-            darkMode 
-              ? 'bg-blue-500/10 border-blue-500/30' 
+          <div className={`p-3 rounded-lg border ${darkMode
+              ? 'bg-blue-500/10 border-blue-500/30'
               : 'bg-blue-50 border-blue-200'
-          }`}>
+            }`}>
             <div className="flex items-center gap-3">
               <Mail size={16} className="text-gray-400" />
               <div className="flex-1">
@@ -952,11 +922,10 @@ const InviteMemberModal = ({ isOpen, onClose, teamId, darkMode }) => {
             <select
               value={selectedRole}
               onChange={(e) => setSelectedRole(e.target.value)}
-              className={`w-full rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 transition-all ${
-                darkMode 
-                  ? 'bg-dark-secondary border border-[#171717] text-white focus:ring-blue-500/20' 
+              className={`w-full rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 transition-all ${darkMode
+                  ? 'bg-dark-secondary border border-[#171717] text-white focus:ring-blue-500/20'
                   : 'bg-white border border-gray-200 text-black focus:ring-blue-500/20'
-              }`}
+                }`}
             >
               <option value="member">Member</option>
               <option value="admin">Admin</option>
@@ -973,9 +942,8 @@ const InviteMemberModal = ({ isOpen, onClose, teamId, darkMode }) => {
             type="button"
             onClick={onClose}
             disabled={isSubmitting}
-            className={`flex-1 px-6 py-3 rounded-lg font-semibold transition-all ${
-              darkMode ? 'bg-[#171717] text-gray-300 hover:bg-gray-700' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-            } disabled:opacity-50`}
+            className={`flex-1 px-6 py-3 rounded-lg font-semibold transition-all ${darkMode ? 'bg-[#171717] text-gray-300 hover:bg-gray-700' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+              } disabled:opacity-50`}
           >
             Cancel
           </button>
@@ -1007,83 +975,69 @@ const PendingInvitationsList = ({ invitations, onRevoke, darkMode }) => {
   }
 
   return (
-    <div className={`${
-      darkMode ? 'bg-dark-secondary border-[#171717]' : 'bg-white border-gray-200 shadow-sm'
-    } border rounded-xl p-5 transition-all mb-6`}>
+    <div className={`${darkMode ? 'bg-dark-secondary border-[#171717]' : 'bg-white border-gray-200 shadow-sm'
+      } border rounded-xl p-5 transition-all mb-6`}>
       <h3 className={`font-bold mb-4 ${darkMode ? 'text-white' : 'text-black'}`}>
         Pending Invitations ({invitations.length})
       </h3>
-      
+
       <div className="overflow-x-auto">
         <table className="w-full">
           <thead>
-            <tr className={`border-b ${
-              darkMode ? 'border-[#171717]' : 'border-gray-200'
-            }`}>
-              <th className={`text-left py-2 px-3 text-xs font-semibold uppercase tracking-wider ${
-                darkMode ? 'text-gray-400' : 'text-gray-600'
-              }`}>Email</th>
-              <th className={`text-left py-2 px-3 text-xs font-semibold uppercase tracking-wider ${
-                darkMode ? 'text-gray-400' : 'text-gray-600'
-              }`}>Role</th>
-              <th className={`text-left py-2 px-3 text-xs font-semibold uppercase tracking-wider ${
-                darkMode ? 'text-gray-400' : 'text-gray-600'
-              }`}>Sent Date</th>
-              <th className={`text-left py-2 px-3 text-xs font-semibold uppercase tracking-wider ${
-                darkMode ? 'text-gray-400' : 'text-gray-600'
-              }`}>Status</th>
-              <th className={`text-right py-2 px-3 text-xs font-semibold uppercase tracking-wider ${
-                darkMode ? 'text-gray-400' : 'text-gray-600'
-              }`}>Action</th>
+            <tr className={`border-b ${darkMode ? 'border-[#171717]' : 'border-gray-200'
+              }`}>
+              <th className={`text-left py-2 px-3 text-xs font-semibold uppercase tracking-wider ${darkMode ? 'text-gray-400' : 'text-gray-600'
+                }`}>Email</th>
+              <th className={`text-left py-2 px-3 text-xs font-semibold uppercase tracking-wider ${darkMode ? 'text-gray-400' : 'text-gray-600'
+                }`}>Role</th>
+              <th className={`text-left py-2 px-3 text-xs font-semibold uppercase tracking-wider ${darkMode ? 'text-gray-400' : 'text-gray-600'
+                }`}>Sent Date</th>
+              <th className={`text-left py-2 px-3 text-xs font-semibold uppercase tracking-wider ${darkMode ? 'text-gray-400' : 'text-gray-600'
+                }`}>Status</th>
+              <th className={`text-right py-2 px-3 text-xs font-semibold uppercase tracking-wider ${darkMode ? 'text-gray-400' : 'text-gray-600'
+                }`}>Action</th>
             </tr>
           </thead>
-          <tbody className={`divide-y ${
-            darkMode ? 'divide-[#171717]' : 'divide-gray-200'
-          }`}>
+          <tbody className={`divide-y ${darkMode ? 'divide-[#171717]' : 'divide-gray-200'
+            }`}>
             {invitations.map((invite) => (
-              <tr key={invite.id} className={`transition-colors ${
-                darkMode ? 'hover:bg-[#171717]' : 'hover:bg-gray-50'
-              }`}>
-                <td className={`py-3 px-3 text-sm ${
-                  darkMode ? 'text-gray-300' : 'text-black'
+              <tr key={invite.id} className={`transition-colors ${darkMode ? 'hover:bg-[#171717]' : 'hover:bg-gray-50'
                 }`}>
+                <td className={`py-3 px-3 text-sm ${darkMode ? 'text-gray-300' : 'text-black'
+                  }`}>
                   {invite.email}
                 </td>
                 <td className="py-3 px-3">
-                  <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
-                    invite.role === 'admin'
+                  <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${invite.role === 'admin'
                       ? 'bg-purple-500/10 text-purple-500'
                       : 'bg-blue-500/10 text-blue-500'
-                  }`}>
+                    }`}>
                     {invite.role}
                   </span>
                 </td>
-                <td className={`py-3 px-3 text-sm ${
-                  darkMode ? 'text-gray-400' : 'text-gray-600'
-                }`}>
-                  {new Date(invite.sent_date).toLocaleDateString('en-US', { 
-                    month: 'short', 
-                    day: 'numeric', 
-                    year: 'numeric' 
+                <td className={`py-3 px-3 text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'
+                  }`}>
+                  {new Date(invite.sent_date).toLocaleDateString('en-US', {
+                    month: 'short',
+                    day: 'numeric',
+                    year: 'numeric'
                   })}
                 </td>
                 <td className="py-3 px-3">
-                  <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
-                    invite.status === 'pending'
+                  <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${invite.status === 'pending'
                       ? 'bg-amber-500/10 text-amber-500'
                       : 'bg-gray-500/10 text-gray-500'
-                  }`}>
+                    }`}>
                     {invite.status}
                   </span>
                 </td>
                 <td className="py-3 px-3 text-right">
                   <button
                     onClick={() => onRevoke(invite)}
-                    className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
-                      darkMode 
-                        ? 'bg-red-500/10 text-red-400 hover:bg-red-500/20' 
+                    className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${darkMode
+                        ? 'bg-red-500/10 text-red-400 hover:bg-red-500/20'
                         : 'bg-red-50 text-red-600 hover:bg-red-100'
-                    }`}
+                      }`}
                   >
                     Revoke
                   </button>
@@ -1098,7 +1052,7 @@ const PendingInvitationsList = ({ invitations, onRevoke, darkMode }) => {
 };
 
 // Create Project Modal
-const CreateProjectModal = ({ isOpen, onClose, teamId, teamMembers, onSubmit, darkMode }) => {
+const CreateProjectModal = ({ isOpen, onClose, teamId, teamMembers, onSubmit, darkMode, currentUserId }) => {
   const [formData, setFormData] = useState({
     name: '',
     description: '',
@@ -1128,7 +1082,7 @@ const CreateProjectModal = ({ isOpen, onClose, teamId, teamMembers, onSubmit, da
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     // Reset all error states
     setError(null);
     setFieldErrors({});
@@ -1142,7 +1096,7 @@ const CreateProjectModal = ({ isOpen, onClose, teamId, teamMembers, onSubmit, da
         start_date: formData.start_date,
         end_date: formData.end_date
       });
-      
+
       // If validation passes, validatedData is now sanitized (trimmed strings, etc.)
       console.log('✅ Validation passed:', validatedData);
     } catch (err) {
@@ -1153,13 +1107,13 @@ const CreateProjectModal = ({ isOpen, onClose, teamId, teamMembers, onSubmit, da
           const fieldName = error.path[0];
           errors[fieldName] = error.message;
         });
-        
+
         console.log('Validation failed:', errors);
-        
+
         // Set errors to trigger visual feedback
         setFieldErrors(errors);
         setError('Please fix the errors below');
-        
+
         // CRITICAL: DO NOT PROCEED - Block API call
         return; // Exit immediately without calling mutation
       }
@@ -1173,15 +1127,15 @@ const CreateProjectModal = ({ isOpen, onClose, teamId, teamMembers, onSubmit, da
         name: formData.name.trim(),
         status: formData.status
       };
-      
+
       if (formData.description?.trim()) {
         dataToSubmit.description = formData.description.trim();
       }
-      
+
       if (formData.start_date) {
         dataToSubmit.start_date = new Date(formData.start_date).toISOString();
       }
-      
+
       if (formData.end_date) {
         dataToSubmit.end_date = new Date(formData.end_date).toISOString();
       }
@@ -1190,7 +1144,7 @@ const CreateProjectModal = ({ isOpen, onClose, teamId, teamMembers, onSubmit, da
       dataToSubmit.members = formData.selectedMembers;
 
       await onSubmit(dataToSubmit);
-      
+
       // SUCCESS: Only close modal if no error thrown
       onClose();
     } catch (err) {
@@ -1224,7 +1178,7 @@ const CreateProjectModal = ({ isOpen, onClose, teamId, teamMembers, onSubmit, da
   const updateMemberRole = (userId, newRole) => {
     setFormData(prev => ({
       ...prev,
-      selectedMembers: prev.selectedMembers.map(m => 
+      selectedMembers: prev.selectedMembers.map(m =>
         m.userId === userId ? { ...m, role: newRole } : m
       )
     }));
@@ -1232,13 +1186,12 @@ const CreateProjectModal = ({ isOpen, onClose, teamId, teamMembers, onSubmit, da
 
   const getInputClass = (fieldName) => {
     const hasError = fieldErrors[fieldName];
-    return `w-full rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 transition-all ${
-      hasError 
-        ? 'border-2 border-red-500 focus:ring-red-500/50 bg-red-50 dark:bg-red-500/10' 
-        : darkMode 
-          ? 'bg-dark-secondary border border-[#171717] text-white placeholder-gray-500 focus:ring-blue-500/20' 
+    return `w-full rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 transition-all ${hasError
+        ? 'border-2 border-red-500 focus:ring-red-500/50 bg-red-50 dark:bg-red-500/10'
+        : darkMode
+          ? 'bg-dark-secondary border border-[#171717] text-white placeholder-gray-500 focus:ring-blue-500/20'
           : 'bg-white border border-gray-200 text-black placeholder-gray-500 focus:ring-blue-500/20'
-    }`;
+      }`;
   };
 
   return (
@@ -1252,8 +1205,8 @@ const CreateProjectModal = ({ isOpen, onClose, teamId, teamMembers, onSubmit, da
             type="text"
             value={formData.name}
             onChange={(e) => {
-              setFormData({...formData, name: e.target.value});
-              if (fieldErrors.name) setFieldErrors({...fieldErrors, name: null});
+              setFormData({ ...formData, name: e.target.value });
+              if (fieldErrors.name) setFieldErrors({ ...fieldErrors, name: null });
             }}
             className={getInputClass('name')}
             placeholder="Enter project name"
@@ -1278,8 +1231,8 @@ const CreateProjectModal = ({ isOpen, onClose, teamId, teamMembers, onSubmit, da
           <textarea
             value={formData.description}
             onChange={(e) => {
-              setFormData({...formData, description: e.target.value});
-              if (fieldErrors.description) setFieldErrors({...fieldErrors, description: null});
+              setFormData({ ...formData, description: e.target.value });
+              if (fieldErrors.description) setFieldErrors({ ...fieldErrors, description: null });
             }}
             className={getInputClass('description')}
             placeholder="Project description (optional)"
@@ -1305,8 +1258,8 @@ const CreateProjectModal = ({ isOpen, onClose, teamId, teamMembers, onSubmit, da
           <select
             value={formData.status}
             onChange={(e) => {
-              setFormData({...formData, status: e.target.value});
-              if (fieldErrors.status) setFieldErrors({...fieldErrors, status: null});
+              setFormData({ ...formData, status: e.target.value });
+              if (fieldErrors.status) setFieldErrors({ ...fieldErrors, status: null });
             }}
             className={getInputClass('status')}
           >
@@ -1331,8 +1284,8 @@ const CreateProjectModal = ({ isOpen, onClose, teamId, teamMembers, onSubmit, da
               type="date"
               value={formData.start_date}
               onChange={(e) => {
-                setFormData({...formData, start_date: e.target.value});
-                if (fieldErrors.start_date) setFieldErrors({...fieldErrors, start_date: null});
+                setFormData({ ...formData, start_date: e.target.value });
+                if (fieldErrors.start_date) setFieldErrors({ ...fieldErrors, start_date: null });
               }}
               className={getInputClass('start_date')}
             />
@@ -1351,8 +1304,8 @@ const CreateProjectModal = ({ isOpen, onClose, teamId, teamMembers, onSubmit, da
               type="date"
               value={formData.end_date}
               onChange={(e) => {
-                setFormData({...formData, end_date: e.target.value});
-                if (fieldErrors.end_date) setFieldErrors({...fieldErrors, end_date: null});
+                setFormData({ ...formData, end_date: e.target.value });
+                if (fieldErrors.end_date) setFieldErrors({ ...fieldErrors, end_date: null });
               }}
               onBlur={() => {
                 // Validate date comparison on blur for CreateProjectModal
@@ -1360,7 +1313,7 @@ const CreateProjectModal = ({ isOpen, onClose, teamId, teamMembers, onSubmit, da
                   const start = new Date(formData.start_date);
                   const end = new Date(formData.end_date);
                   if (!isNaN(start.getTime()) && !isNaN(end.getTime()) && start > end) {
-                    setFieldErrors(prev => ({...prev, end_date: 'End date must be after start date'}));
+                    setFieldErrors(prev => ({ ...prev, end_date: 'End date must be after start date' }));
                   }
                 }
               }}
@@ -1380,12 +1333,12 @@ const CreateProjectModal = ({ isOpen, onClose, teamId, teamMembers, onSubmit, da
           <label className={`block text-sm font-bold mb-2 ${darkMode ? 'text-gray-300' : 'text-gray-400'}`}>
             Team Members <span className="text-xs font-normal">(You will be added as lead automatically)</span>
           </label>
-          <div className={`max-h-48 overflow-y-auto rounded-lg border ${
-            darkMode ? 'border-[#171717] bg-dark-secondary' : 'border-gray-200 bg-white'
-          }`}>
-            {teamMembers && teamMembers.length > 0 ? (
+          <div className={`max-h-48 overflow-y-auto rounded-lg border ${darkMode ? 'border-[#171717] bg-dark-secondary' : 'border-gray-200 bg-white'
+            }`}>
+            {/* SECURITY: Filter out current user since they are auto-added as lead */}
+            {teamMembers && teamMembers.filter(m => m.user_id !== currentUserId).length > 0 ? (
               <div className="divide-y divide-[#171717]">
-                {teamMembers.map((member) => {
+                {teamMembers.filter(m => m.user_id !== currentUserId).map((member) => {
                   const isSelected = formData.selectedMembers.find(m => m.userId === member.user_id);
                   return (
                     <div key={member.user_id} className={`p-3 flex items-center justify-between hover:bg-[#171717]/30 transition-colors`}>
@@ -1400,18 +1353,16 @@ const CreateProjectModal = ({ isOpen, onClose, teamId, teamMembers, onSubmit, da
                           {member.avatar_url ? (
                             <img src={member.avatar_url} alt={member.username} className="w-8 h-8 rounded-full" />
                           ) : (
-                            <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold ${
-                              darkMode ? 'bg-[#006239] text-white' : 'bg-gray-200 text-black'
-                            }`}>
+                            <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold ${darkMode ? 'bg-[#006239] text-white' : 'bg-gray-200 text-black'
+                              }`}>
                               {member.username[0].toUpperCase()}
                             </div>
                           )}
                           <span className={`text-sm ${darkMode ? 'text-white' : 'text-black'}`}>
                             {member.username}
                           </span>
-                          <span className={`text-xs px-2 py-0.5 rounded-full ${
-                            darkMode ? 'bg-[#171717] text-gray-300' : 'bg-gray-200/50 text-gray-400'
-                          }`}>
+                          <span className={`text-xs px-2 py-0.5 rounded-full ${darkMode ? 'bg-[#171717] text-gray-300' : 'bg-gray-200/50 text-gray-400'
+                            }`}>
                             {member.role}
                           </span>
                         </div>
@@ -1420,9 +1371,8 @@ const CreateProjectModal = ({ isOpen, onClose, teamId, teamMembers, onSubmit, da
                         <select
                           value={isSelected.role}
                           onChange={(e) => updateMemberRole(member.user_id, e.target.value)}
-                          className={`text-xs px-2 py-1 rounded border focus:outline-none focus:ring-1 focus:ring-blue-500/20 ${
-                            darkMode ? 'bg-dark-secondary border-[#171717] text-gray-300' : 'bg-white border-gray-200 text-gray-400'
-                          }`}
+                          className={`text-xs px-2 py-1 rounded border focus:outline-none focus:ring-1 focus:ring-blue-500/20 ${darkMode ? 'bg-dark-secondary border-[#171717] text-gray-300' : 'bg-white border-gray-200 text-gray-400'
+                            }`}
                           onClick={(e) => e.stopPropagation()}
                         >
                           <option value="lead">Lead</option>
@@ -1446,9 +1396,8 @@ const CreateProjectModal = ({ isOpen, onClose, teamId, teamMembers, onSubmit, da
         </div>
 
         {error && (
-          <div className={`p-3 rounded-lg border ${
-            darkMode ? 'bg-red-500/10 border-red-500/30 text-red-400' : 'bg-red-50 border-red-200 text-red-600'
-          }`}>
+          <div className={`p-3 rounded-lg border ${darkMode ? 'bg-red-500/10 border-red-500/30 text-red-400' : 'bg-red-50 border-red-200 text-red-600'
+            }`}>
             <div className="flex items-start gap-2">
               <AlertCircle size={18} className="flex-shrink-0 mt-0.5" />
               <p className="text-sm">{error}</p>
@@ -1461,18 +1410,16 @@ const CreateProjectModal = ({ isOpen, onClose, teamId, teamMembers, onSubmit, da
             type="button"
             onClick={onClose}
             disabled={isSubmitting}
-            className={`flex-1 px-6 py-3 rounded-lg font-semibold transition-all ${
-              darkMode ? 'bg-[#171717] text-gray-300 hover:bg-[#171717]/70' : 'bg-gray-200/50 text-gray-400 hover:bg-gray-200'
-            } disabled:opacity-50`}
+            className={`flex-1 px-6 py-3 rounded-lg font-semibold transition-all ${darkMode ? 'bg-[#171717] text-gray-300 hover:bg-[#171717]/70' : 'bg-gray-200/50 text-gray-400 hover:bg-gray-200'
+              } disabled:opacity-50`}
           >
             Cancel
           </button>
           <button
             type="submit"
             disabled={isSubmitting || !formData.name.trim()}
-            className={`flex-1 px-6 py-3 rounded-lg font-semibold transition-all disabled:opacity-50 disabled:cursor-not-allowed ${
-              darkMode ? 'bg-[#006239] hover:bg-[#006239]/80 text-white' : 'bg-[#006239] hover:bg-[#006239]/90 text-white'
-            }`}
+            className={`flex-1 px-6 py-3 rounded-lg font-semibold transition-all disabled:opacity-50 disabled:cursor-not-allowed ${darkMode ? 'bg-[#006239] hover:bg-[#006239]/80 text-white' : 'bg-[#006239] hover:bg-[#006239]/90 text-white'
+              }`}
           >
             {isSubmitting ? 'Creating...' : 'Create Project'}
           </button>
@@ -1514,104 +1461,97 @@ const RemoveMemberConfirmModal = ({ isOpen, onClose, memberInfo, onConfirm, dark
     }
   };
 
-  const inputClass = `w-full rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-red-500/50 transition-all ${
-    darkMode ? 'bg-dark-secondary border border-[#171717] text-white' : 'bg-white border border-gray-200 text-black'
-  }`;
+  const inputClass = `w-full rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-red-500/50 transition-all ${darkMode ? 'bg-dark-secondary border border-[#171717] text-white' : 'bg-white border border-gray-200 text-black'
+    }`;
 
   return (
     <div className={`${isOpen ? 'fixed' : 'hidden'} inset-0 z-[60] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm overflow-y-auto`}>
-      <div 
-        className={`w-full max-w-lg rounded-xl shadow-2xl my-8 ${
-          darkMode ? 'bg-dark-secondary border border-[#171717]' : 'bg-white border border-gray-200'
-        }`}
+      <div
+        className={`w-full max-w-lg rounded-xl shadow-2xl my-8 ${darkMode ? 'bg-dark-secondary border border-[#171717]' : 'bg-white border border-gray-200'
+          }`}
         onClick={(e) => e.stopPropagation()}
       >
-        <div className={`flex items-center justify-between p-6 border-b ${
-          darkMode ? 'border-[#171717] bg-dark-secondary' : 'border-gray-200 bg-white'
-        }`}>
+        <div className={`flex items-center justify-between p-6 border-b ${darkMode ? 'border-[#171717] bg-dark-secondary' : 'border-gray-200 bg-white'
+          }`}>
           <h2 className={`text-xl font-bold ${darkMode ? 'text-white' : 'text-black'}`}>
             Remove Project Member
           </h2>
           <button
             onClick={onClose}
-            className={`p-2 rounded-lg transition-colors ${
-              darkMode ? 'hover:bg-[#171717] text-gray-300' : 'hover:bg-gray-200/50 text-gray-400'
-            }`}
+            className={`p-2 rounded-lg transition-colors ${darkMode ? 'hover:bg-[#171717] text-gray-300' : 'hover:bg-gray-200/50 text-gray-400'
+              }`}
           >
             <X size={20} />
           </button>
         </div>
         <div className="p-6">
-      <div className="space-y-4">
-        <div className={`p-4 rounded-lg border-2 ${
-          darkMode ? 'bg-red-500/10 border-red-500/30' : 'bg-red-50 border-red-200'
-        }`}>
-          <div className="flex items-start gap-3">
-            <AlertCircle className="text-red-500 flex-shrink-0 mt-0.5" size={20} />
+          <div className="space-y-4">
+            <div className={`p-4 rounded-lg border-2 ${darkMode ? 'bg-red-500/10 border-red-500/30' : 'bg-red-50 border-red-200'
+              }`}>
+              <div className="flex items-start gap-3">
+                <AlertCircle className="text-red-500 flex-shrink-0 mt-0.5" size={20} />
+                <div>
+                  <h4 className={`font-bold text-sm mb-1 ${darkMode ? 'text-red-400' : 'text-red-600'}`}>
+                    Warning: This action cannot be undone
+                  </h4>
+                  <p className={`text-sm mb-2 ${darkMode ? 'text-red-300' : 'text-red-500'}`}>
+                    This member has <span className="font-bold">{memberInfo?.taskCount || 0} assigned task(s)</span>.
+                  </p>
+                  <p className={`text-sm ${darkMode ? 'text-red-300' : 'text-red-500'}`}>
+                    Removing this member will:
+                  </p>
+                  <ul className={`text-xs mt-2 space-y-1 list-disc list-inside ${darkMode ? 'text-red-300' : 'text-red-500'}`}>
+                    <li>Unassign them from all {memberInfo?.taskCount || 0} task(s)</li>
+                    <li>Remove their access to this project</li>
+                    <li>Remove them from project channels</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+
             <div>
-              <h4 className={`font-bold text-sm mb-1 ${darkMode ? 'text-red-400' : 'text-red-600'}`}>
-                Warning: This action cannot be undone
-              </h4>
-              <p className={`text-sm mb-2 ${darkMode ? 'text-red-300' : 'text-red-500'}`}>
-                This member has <span className="font-bold">{memberInfo?.taskCount || 0} assigned task(s)</span>.
-              </p>
-              <p className={`text-sm ${darkMode ? 'text-red-300' : 'text-red-500'}`}>
-                Removing this member will:
-              </p>
-              <ul className={`text-xs mt-2 space-y-1 list-disc list-inside ${darkMode ? 'text-red-300' : 'text-red-500'}`}>
-                <li>Unassign them from all {memberInfo?.taskCount || 0} task(s)</li>
-                <li>Remove their access to this project</li>
-                <li>Remove them from project channels</li>
-              </ul>
+              <label className={`block text-sm font-bold mb-2 ${darkMode ? 'text-gray-300' : 'text-gray-400'}`}>
+                Type <span className="font-mono text-red-500">"Yes"</span> to confirm:
+              </label>
+              <input
+                type="text"
+                value={confirmText}
+                onChange={(e) => setConfirmText(e.target.value)}
+                className={inputClass}
+                placeholder="Yes"
+              />
+            </div>
+
+            {error && (
+              <div className={`p-3 rounded-lg border ${darkMode ? 'bg-red-500/10 border-red-500/30 text-red-400' : 'bg-red-50 border-red-200 text-red-600'
+                }`}>
+                <div className="flex items-start gap-2">
+                  <AlertCircle size={18} className="flex-shrink-0 mt-0.5" />
+                  <p className="text-sm">{error}</p>
+                </div>
+              </div>
+            )}
+
+            <div className="flex gap-3 pt-4">
+              <button
+                type="button"
+                onClick={onClose}
+                disabled={isRemoving}
+                className={`flex-1 px-6 py-3 rounded-lg font-semibold transition-all ${darkMode ? 'bg-[#171717] text-gray-300 hover:bg-[#171717]/70' : 'bg-gray-200/50 text-gray-400 hover:bg-gray-200'
+                  } disabled:opacity-50`}
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={handleRemove}
+                disabled={isRemoving || confirmText.toLowerCase() !== 'yes'}
+                className="flex-1 px-6 py-3 bg-red-500 hover:bg-red-600 text-white rounded-lg font-semibold transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {isRemoving ? 'Removing...' : 'Remove Member'}
+              </button>
             </div>
           </div>
-        </div>
-
-        <div>
-          <label className={`block text-sm font-bold mb-2 ${darkMode ? 'text-gray-300' : 'text-gray-400'}`}>
-            Type <span className="font-mono text-red-500">"Yes"</span> to confirm:
-          </label>
-          <input
-            type="text"
-            value={confirmText}
-            onChange={(e) => setConfirmText(e.target.value)}
-            className={inputClass}
-            placeholder="Yes"
-          />
-        </div>
-
-        {error && (
-          <div className={`p-3 rounded-lg border ${
-            darkMode ? 'bg-red-500/10 border-red-500/30 text-red-400' : 'bg-red-50 border-red-200 text-red-600'
-          }`}>
-            <div className="flex items-start gap-2">
-              <AlertCircle size={18} className="flex-shrink-0 mt-0.5" />
-              <p className="text-sm">{error}</p>
-            </div>
-          </div>
-        )}
-
-        <div className="flex gap-3 pt-4">
-          <button
-            type="button"
-            onClick={onClose}
-            disabled={isRemoving}
-            className={`flex-1 px-6 py-3 rounded-lg font-semibold transition-all ${
-              darkMode ? 'bg-[#171717] text-gray-300 hover:bg-[#171717]/70' : 'bg-gray-200/50 text-gray-400 hover:bg-gray-200'
-            } disabled:opacity-50`}
-          >
-            Cancel
-          </button>
-          <button
-            type="button"
-            onClick={handleRemove}
-            disabled={isRemoving || confirmText.toLowerCase() !== 'yes'}
-            className="flex-1 px-6 py-3 bg-red-500 hover:bg-red-600 text-white rounded-lg font-semibold transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {isRemoving ? 'Removing...' : 'Remove Member'}
-          </button>
-        </div>
-      </div>
         </div>
       </div>
     </div>
@@ -1644,7 +1584,7 @@ const EditProjectModal = ({ isOpen, onClose, project, onSubmit, darkMode, teamMe
           const response = await getProjectMembers(project.id);
           const members = response.data.map(m => ({ userId: m.user_id, role: m.role }));
           setInitialMembers(members);
-          
+
           setFormData({
             name: project.name || '',
             description: project.description || '',
@@ -1659,14 +1599,14 @@ const EditProjectModal = ({ isOpen, onClose, project, onSubmit, darkMode, teamMe
           setError('Failed to load project members');
         }
       };
-      
+
       fetchProjectMembers();
     }
   }, [project, isOpen]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     // Reset all error states
     setError(null);
     setFieldErrors({});
@@ -1680,7 +1620,7 @@ const EditProjectModal = ({ isOpen, onClose, project, onSubmit, darkMode, teamMe
         start_date: formData.start_date,
         end_date: formData.end_date
       });
-      
+
       console.log('✅ EditProject validation passed:', validatedData);
     } catch (err) {
       if (err instanceof z.ZodError) {
@@ -1690,13 +1630,13 @@ const EditProjectModal = ({ isOpen, onClose, project, onSubmit, darkMode, teamMe
           const fieldName = error.path[0];
           errors[fieldName] = error.message;
         });
-        
+
         console.log('EditProject validation failed:', errors);
-        
+
         // Set errors to trigger visual feedback
         setFieldErrors(errors);
         setError('Please fix the errors below');
-        
+
         // CRITICAL: DO NOT PROCEED - Block API call
         return; // Exit immediately without calling mutation
       }
@@ -1708,15 +1648,15 @@ const EditProjectModal = ({ isOpen, onClose, project, onSubmit, darkMode, teamMe
     try {
       // Handle project detail updates
       const dataToSubmit = {};
-      
+
       if (formData.name.trim() !== project.name) {
         dataToSubmit.name = formData.name.trim();
       }
-      
+
       if (formData.description?.trim() !== project.description) {
         dataToSubmit.description = formData.description.trim();
       }
-      
+
       if (formData.status !== project.status) {
         dataToSubmit.status = formData.status;
       }
@@ -1781,14 +1721,14 @@ const EditProjectModal = ({ isOpen, onClose, project, onSubmit, darkMode, teamMe
         } catch (err) {
           // Extract error message properly
           const errorMessage = err.response?.data?.message || err.message || 'Failed to remove member';
-          
+
           // If member has tasks, show confirmation modal
           console.log('Remove member error:', errorMessage); // Debug log
           if (errorMessage.includes('assigned task')) {
             // Extract task count from error message
             const taskCountMatch = errorMessage.match(/(\d+)/);
             const taskCount = taskCountMatch ? parseInt(taskCountMatch[0]) : 0;
-            
+
             // Store pending changes and show modal
             setPendingChanges({ dataToSubmit, membersToAdd, membersToRemove, membersToUpdate });
             setMemberToRemove({ userId: member.userId, taskCount });
@@ -1814,10 +1754,10 @@ const EditProjectModal = ({ isOpen, onClose, project, onSubmit, darkMode, teamMe
       }
 
       // If no project changes and no member changes, show error
-      if (Object.keys(dataToSubmit).length === 0 && 
-          membersToAdd.length === 0 && 
-          membersToRemove.length === 0 && 
-          membersToUpdate.length === 0) {
+      if (Object.keys(dataToSubmit).length === 0 &&
+        membersToAdd.length === 0 &&
+        membersToRemove.length === 0 &&
+        membersToUpdate.length === 0) {
         setError('No changes detected');
         setIsSubmitting(false);
         return;
@@ -1856,7 +1796,7 @@ const EditProjectModal = ({ isOpen, onClose, project, onSubmit, darkMode, teamMe
   const updateMemberRole = (userId, newRole) => {
     setFormData(prev => ({
       ...prev,
-      selectedMembers: prev.selectedMembers.map(m => 
+      selectedMembers: prev.selectedMembers.map(m =>
         m.userId === userId ? { ...m, role: newRole } : m
       )
     }));
@@ -1921,13 +1861,12 @@ const EditProjectModal = ({ isOpen, onClose, project, onSubmit, darkMode, teamMe
 
   const getInputClass = (fieldName) => {
     const hasError = fieldErrors[fieldName];
-    return `w-full rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 transition-all ${
-      hasError 
-        ? 'border-2 border-red-500 focus:ring-red-500/50 bg-red-50 dark:bg-red-500/10' 
-        : darkMode 
-          ? 'bg-dark-secondary border border-[#171717] text-white placeholder-gray-500 focus:ring-blue-500/20' 
+    return `w-full rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 transition-all ${hasError
+        ? 'border-2 border-red-500 focus:ring-red-500/50 bg-red-50 dark:bg-red-500/10'
+        : darkMode
+          ? 'bg-dark-secondary border border-[#171717] text-white placeholder-gray-500 focus:ring-blue-500/20'
           : 'bg-white border border-gray-200 text-black placeholder-gray-500 focus:ring-blue-500/20'
-    }`;
+      }`;
   };
 
   return (
@@ -1944,244 +1883,237 @@ const EditProjectModal = ({ isOpen, onClose, project, onSubmit, darkMode, teamMe
         onConfirm={handleConfirmedRemoval}
         darkMode={darkMode}
       />
-      
+
       <Modal isOpen={isOpen} onClose={onClose} title="Edit Project" darkMode={darkMode}>
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <div>
-          <label className={`block text-sm font-bold mb-2 ${darkMode ? 'text-gray-300' : 'text-gray-400'}`}>
-            Project Name <span className="text-red-500">*</span>
-          </label>
-          <input
-            type="text"
-            value={formData.name}
-            onChange={(e) => {
-              setFormData({...formData, name: e.target.value});
-              if (fieldErrors.name) setFieldErrors({...fieldErrors, name: null});
-            }}
-            className={getInputClass('name')}
-            placeholder="Enter project name"
-            maxLength={100}
-          />
-          {fieldErrors.name ? (
-            <p className="text-red-500 text-xs mt-1 flex items-center gap-1">
-              <AlertCircle size={12} />
-              {fieldErrors.name}
-            </p>
-          ) : (
-            <p className={`text-xs mt-1 ${darkMode ? 'text-gray-400' : 'text-gray-400'}`}>
-              {formData.name.length}/100 characters
-            </p>
-          )}
-        </div>
-
-        <div>
-          <label className={`block text-sm font-bold mb-2 ${darkMode ? 'text-gray-300' : 'text-gray-400'}`}>
-            Description
-          </label>
-          <textarea
-            value={formData.description}
-            onChange={(e) => {
-              setFormData({...formData, description: e.target.value});
-              if (fieldErrors.description) setFieldErrors({...fieldErrors, description: null});
-            }}
-            className={getInputClass('description')}
-            placeholder="Project description (optional)"
-            rows={3}
-            maxLength={500}
-          />
-          {fieldErrors.description ? (
-            <p className="text-red-500 text-xs mt-1 flex items-center gap-1">
-              <AlertCircle size={12} />
-              {fieldErrors.description}
-            </p>
-          ) : (
-            <p className={`text-xs mt-1 ${darkMode ? 'text-gray-400' : 'text-gray-400'}`}>
-              {formData.description.length}/500 characters
-            </p>
-          )}
-        </div>
-
-        <div>
-          <label className={`block text-sm font-bold mb-2 ${darkMode ? 'text-gray-300' : 'text-gray-400'}`}>
-            Status
-          </label>
-          <select
-            value={formData.status}
-            onChange={(e) => {
-              setFormData({...formData, status: e.target.value});
-              if (fieldErrors.status) setFieldErrors({...fieldErrors, status: null});
-            }}
-            className={getInputClass('status')}
-          >
-            <option value="active">Active</option>
-            <option value="archived">Archived</option>
-            <option value="completed">Completed</option>
-          </select>
-          {fieldErrors.status && (
-            <p className="text-red-500 text-xs mt-1 flex items-center gap-1">
-              <AlertCircle size={12} />
-              {fieldErrors.status}
-            </p>
-          )}
-        </div>
-
-        <div className="grid grid-cols-2 gap-4">
+        <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label className={`block text-sm font-bold mb-2 ${darkMode ? 'text-gray-300' : 'text-gray-400'}`}>
-              Start Date
+              Project Name <span className="text-red-500">*</span>
             </label>
             <input
-              type="date"
-              value={formData.start_date}
+              type="text"
+              value={formData.name}
               onChange={(e) => {
-                setFormData({...formData, start_date: e.target.value});
-                if (fieldErrors.start_date) setFieldErrors({...fieldErrors, start_date: null});
+                setFormData({ ...formData, name: e.target.value });
+                if (fieldErrors.name) setFieldErrors({ ...fieldErrors, name: null });
               }}
-              className={getInputClass('start_date')}
+              className={getInputClass('name')}
+              placeholder="Enter project name"
+              maxLength={100}
             />
-            {fieldErrors.start_date && (
+            {fieldErrors.name ? (
               <p className="text-red-500 text-xs mt-1 flex items-center gap-1">
                 <AlertCircle size={12} />
-                {fieldErrors.start_date}
+                {fieldErrors.name}
               </p>
-            )}
-          </div>
-          <div>
-            <label className={`block text-sm font-bold mb-2 ${darkMode ? 'text-gray-300' : 'text-gray-400'}`}>
-              End Date
-            </label>
-            <input
-              type="date"
-              value={formData.end_date}
-              onChange={(e) => {
-                setFormData({...formData, end_date: e.target.value});
-                if (fieldErrors.end_date) setFieldErrors({...fieldErrors, end_date: null});
-              }}
-              onBlur={() => {
-                // Validate date comparison on blur for EditProjectModal
-                if (formData.start_date && formData.end_date) {
-                  const start = new Date(formData.start_date);
-                  const end = new Date(formData.end_date);
-                  if (!isNaN(start.getTime()) && !isNaN(end.getTime()) && start > end) {
-                    setFieldErrors(prev => ({...prev, end_date: 'End date must be after start date'}));
-                  }
-                }
-              }}
-              className={getInputClass('end_date')}
-            />
-            {fieldErrors.end_date && (
-              <p className="text-red-500 text-xs mt-1 flex items-center gap-1">
-                <AlertCircle size={12} />
-                {fieldErrors.end_date}
-              </p>
-            )}
-          </div>
-        </div>
-
-        {/* Member Selection */}
-        <div>
-          <label className={`block text-sm font-bold mb-2 ${darkMode ? 'text-gray-300' : 'text-gray-400'}`}>
-            Project Members
-          </label>
-          <div className={`max-h-48 overflow-y-auto rounded-lg border ${
-            darkMode ? 'border-[#171717] bg-dark-secondary' : 'border-gray-200 bg-white'
-          }`}>
-            {teamMembers && teamMembers.length > 0 ? (
-              <div className="divide-y divide-[#171717]">
-                {teamMembers.map((member) => {
-                  const isSelected = formData.selectedMembers.find(m => m.userId === member.user_id);
-                  return (
-                    <div key={member.user_id} className={`p-3 flex items-center justify-between hover:bg-[#171717]/30 transition-colors`}>
-                      <div className="flex items-center gap-3 flex-1">
-                        <input
-                          type="checkbox"
-                          checked={!!isSelected}
-                          onChange={() => toggleMember(member)}
-                          className="w-4 h-4 rounded border-gray-400 text-gray-400 focus:ring-blue-500/20"
-                        />
-                        <div className="flex items-center gap-2">
-                          {member.avatar_url ? (
-                            <img src={member.avatar_url} alt={member.username} className="w-8 h-8 rounded-full" />
-                          ) : (
-                            <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold ${
-                              darkMode ? 'bg-[#006239] text-white' : 'bg-gray-200 text-black'
-                            }`}>
-                              {member.username[0].toUpperCase()}
-                            </div>
-                          )}
-                          <span className={`text-sm ${darkMode ? 'text-white' : 'text-black'}`}>
-                            {member.username}
-                          </span>
-                          <span className={`text-xs px-2 py-0.5 rounded-full ${
-                            darkMode ? 'bg-[#171717] text-gray-300' : 'bg-gray-200/50 text-gray-400'
-                          }`}>
-                            {member.role}
-                          </span>
-                        </div>
-                      </div>
-                      {isSelected && (
-                        <select
-                          value={isSelected.role}
-                          onChange={(e) => updateMemberRole(member.user_id, e.target.value)}
-                          className={`text-xs px-2 py-1 rounded border focus:outline-none focus:ring-1 focus:ring-blue-500/20 ${
-                            darkMode ? 'bg-dark-secondary border-[#171717] text-gray-300' : 'bg-white border-gray-200 text-gray-400'
-                          }`}
-                          onClick={(e) => e.stopPropagation()}
-                        >
-                          <option value="lead">Lead</option>
-                          <option value="editor">Editor</option>
-                          <option value="viewer">Viewer</option>
-                        </select>
-                      )}
-                    </div>
-                  );
-                })}
-              </div>
             ) : (
-              <div className={`p-4 text-center text-sm ${darkMode ? 'text-gray-300' : 'text-gray-400'}`}>
-                No team members available
-              </div>
+              <p className={`text-xs mt-1 ${darkMode ? 'text-gray-400' : 'text-gray-400'}`}>
+                {formData.name.length}/100 characters
+              </p>
             )}
           </div>
-          <p className={`text-xs mt-1 ${darkMode ? 'text-gray-400' : 'text-gray-400'}`}>
-            {formData.selectedMembers.length} member(s) selected
-          </p>
-        </div>
 
-        {error && (
-          <div className={`p-3 rounded-lg border ${
-            darkMode ? 'bg-red-500/10 border-red-500/30 text-red-400' : 'bg-red-50 border-red-200 text-red-600'
-          }`}>
-            <div className="flex items-start gap-2">
-              <AlertCircle size={18} className="flex-shrink-0 mt-0.5" />
-              <p className="text-sm">{error}</p>
+          <div>
+            <label className={`block text-sm font-bold mb-2 ${darkMode ? 'text-gray-300' : 'text-gray-400'}`}>
+              Description
+            </label>
+            <textarea
+              value={formData.description}
+              onChange={(e) => {
+                setFormData({ ...formData, description: e.target.value });
+                if (fieldErrors.description) setFieldErrors({ ...fieldErrors, description: null });
+              }}
+              className={getInputClass('description')}
+              placeholder="Project description (optional)"
+              rows={3}
+              maxLength={500}
+            />
+            {fieldErrors.description ? (
+              <p className="text-red-500 text-xs mt-1 flex items-center gap-1">
+                <AlertCircle size={12} />
+                {fieldErrors.description}
+              </p>
+            ) : (
+              <p className={`text-xs mt-1 ${darkMode ? 'text-gray-400' : 'text-gray-400'}`}>
+                {formData.description.length}/500 characters
+              </p>
+            )}
+          </div>
+
+          <div>
+            <label className={`block text-sm font-bold mb-2 ${darkMode ? 'text-gray-300' : 'text-gray-400'}`}>
+              Status
+            </label>
+            <select
+              value={formData.status}
+              onChange={(e) => {
+                setFormData({ ...formData, status: e.target.value });
+                if (fieldErrors.status) setFieldErrors({ ...fieldErrors, status: null });
+              }}
+              className={getInputClass('status')}
+            >
+              <option value="active">Active</option>
+              <option value="archived">Archived</option>
+              <option value="completed">Completed</option>
+            </select>
+            {fieldErrors.status && (
+              <p className="text-red-500 text-xs mt-1 flex items-center gap-1">
+                <AlertCircle size={12} />
+                {fieldErrors.status}
+              </p>
+            )}
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className={`block text-sm font-bold mb-2 ${darkMode ? 'text-gray-300' : 'text-gray-400'}`}>
+                Start Date
+              </label>
+              <input
+                type="date"
+                value={formData.start_date}
+                onChange={(e) => {
+                  setFormData({ ...formData, start_date: e.target.value });
+                  if (fieldErrors.start_date) setFieldErrors({ ...fieldErrors, start_date: null });
+                }}
+                className={getInputClass('start_date')}
+              />
+              {fieldErrors.start_date && (
+                <p className="text-red-500 text-xs mt-1 flex items-center gap-1">
+                  <AlertCircle size={12} />
+                  {fieldErrors.start_date}
+                </p>
+              )}
+            </div>
+            <div>
+              <label className={`block text-sm font-bold mb-2 ${darkMode ? 'text-gray-300' : 'text-gray-400'}`}>
+                End Date
+              </label>
+              <input
+                type="date"
+                value={formData.end_date}
+                onChange={(e) => {
+                  setFormData({ ...formData, end_date: e.target.value });
+                  if (fieldErrors.end_date) setFieldErrors({ ...fieldErrors, end_date: null });
+                }}
+                onBlur={() => {
+                  // Validate date comparison on blur for EditProjectModal
+                  if (formData.start_date && formData.end_date) {
+                    const start = new Date(formData.start_date);
+                    const end = new Date(formData.end_date);
+                    if (!isNaN(start.getTime()) && !isNaN(end.getTime()) && start > end) {
+                      setFieldErrors(prev => ({ ...prev, end_date: 'End date must be after start date' }));
+                    }
+                  }
+                }}
+                className={getInputClass('end_date')}
+              />
+              {fieldErrors.end_date && (
+                <p className="text-red-500 text-xs mt-1 flex items-center gap-1">
+                  <AlertCircle size={12} />
+                  {fieldErrors.end_date}
+                </p>
+              )}
             </div>
           </div>
-        )}
 
-        <div className="flex gap-3 pt-4">
-          <button
-            type="button"
-            onClick={onClose}
-            disabled={isSubmitting}
-            className={`flex-1 px-6 py-3 rounded-lg font-semibold transition-all ${
-              darkMode ? 'bg-[#171717] text-gray-300 hover:bg-[#171717]/70' : 'bg-gray-200/50 text-gray-400 hover:bg-gray-200'
-            } disabled:opacity-50`}
-          >
-            Cancel
-          </button>
-          <button
-            type="submit"
-            disabled={isSubmitting || !formData.name.trim()}
-            className={`flex-1 px-6 py-3 rounded-lg font-semibold transition-all disabled:opacity-50 disabled:cursor-not-allowed ${
-              darkMode ? 'bg-[#006239] hover:bg-[#006239]/80 text-white' : 'bg-[#006239] hover:bg-[#006239]/90 text-white'
-            }`}
-          >
-            {isSubmitting ? 'Saving...' : 'Save Changes'}
-          </button>
-        </div>
-      </form>
-    </Modal>
+          {/* Member Selection */}
+          <div>
+            <label className={`block text-sm font-bold mb-2 ${darkMode ? 'text-gray-300' : 'text-gray-400'}`}>
+              Project Members
+            </label>
+            <div className={`max-h-48 overflow-y-auto rounded-lg border ${darkMode ? 'border-[#171717] bg-dark-secondary' : 'border-gray-200 bg-white'
+              }`}>
+              {teamMembers && teamMembers.length > 0 ? (
+                <div className="divide-y divide-[#171717]">
+                  {teamMembers.map((member) => {
+                    const isSelected = formData.selectedMembers.find(m => m.userId === member.user_id);
+                    return (
+                      <div key={member.user_id} className={`p-3 flex items-center justify-between hover:bg-[#171717]/30 transition-colors`}>
+                        <div className="flex items-center gap-3 flex-1">
+                          <input
+                            type="checkbox"
+                            checked={!!isSelected}
+                            onChange={() => toggleMember(member)}
+                            className="w-4 h-4 rounded border-gray-400 text-gray-400 focus:ring-blue-500/20"
+                          />
+                          <div className="flex items-center gap-2">
+                            {member.avatar_url ? (
+                              <img src={member.avatar_url} alt={member.username} className="w-8 h-8 rounded-full" />
+                            ) : (
+                              <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold ${darkMode ? 'bg-[#006239] text-white' : 'bg-gray-200 text-black'
+                                }`}>
+                                {member.username[0].toUpperCase()}
+                              </div>
+                            )}
+                            <span className={`text-sm ${darkMode ? 'text-white' : 'text-black'}`}>
+                              {member.username}
+                            </span>
+                            <span className={`text-xs px-2 py-0.5 rounded-full ${darkMode ? 'bg-[#171717] text-gray-300' : 'bg-gray-200/50 text-gray-400'
+                              }`}>
+                              {member.role}
+                            </span>
+                          </div>
+                        </div>
+                        {isSelected && (
+                          <select
+                            value={isSelected.role}
+                            onChange={(e) => updateMemberRole(member.user_id, e.target.value)}
+                            className={`text-xs px-2 py-1 rounded border focus:outline-none focus:ring-1 focus:ring-blue-500/20 ${darkMode ? 'bg-dark-secondary border-[#171717] text-gray-300' : 'bg-white border-gray-200 text-gray-400'
+                              }`}
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            <option value="lead">Lead</option>
+                            <option value="editor">Editor</option>
+                            <option value="viewer">Viewer</option>
+                          </select>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              ) : (
+                <div className={`p-4 text-center text-sm ${darkMode ? 'text-gray-300' : 'text-gray-400'}`}>
+                  No team members available
+                </div>
+              )}
+            </div>
+            <p className={`text-xs mt-1 ${darkMode ? 'text-gray-400' : 'text-gray-400'}`}>
+              {formData.selectedMembers.length} member(s) selected
+            </p>
+          </div>
+
+          {error && (
+            <div className={`p-3 rounded-lg border ${darkMode ? 'bg-red-500/10 border-red-500/30 text-red-400' : 'bg-red-50 border-red-200 text-red-600'
+              }`}>
+              <div className="flex items-start gap-2">
+                <AlertCircle size={18} className="flex-shrink-0 mt-0.5" />
+                <p className="text-sm">{error}</p>
+              </div>
+            </div>
+          )}
+
+          <div className="flex gap-3 pt-4">
+            <button
+              type="button"
+              onClick={onClose}
+              disabled={isSubmitting}
+              className={`flex-1 px-6 py-3 rounded-lg font-semibold transition-all ${darkMode ? 'bg-[#171717] text-gray-300 hover:bg-[#171717]/70' : 'bg-gray-200/50 text-gray-400 hover:bg-gray-200'
+                } disabled:opacity-50`}
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              disabled={isSubmitting || !formData.name.trim()}
+              className={`flex-1 px-6 py-3 rounded-lg font-semibold transition-all disabled:opacity-50 disabled:cursor-not-allowed ${darkMode ? 'bg-[#006239] hover:bg-[#006239]/80 text-white' : 'bg-[#006239] hover:bg-[#006239]/90 text-white'
+                }`}
+            >
+              {isSubmitting ? 'Saving...' : 'Save Changes'}
+            </button>
+          </div>
+        </form>
+      </Modal>
     </>
   );
 };
@@ -2200,7 +2132,7 @@ const TeamMembersModal = ({ isOpen, onClose, teamId, darkMode }) => {
   const members = membersData?.data || [];
 
   // Filter members based on search
-  const filteredMembers = members.filter(member => 
+  const filteredMembers = members.filter(member =>
     member.username?.toLowerCase().includes(searchQuery.toLowerCase()) ||
     member.email?.toLowerCase().includes(searchQuery.toLowerCase())
   );
@@ -2217,9 +2149,8 @@ const TeamMembersModal = ({ isOpen, onClose, teamId, darkMode }) => {
       );
     }
     return (
-      <div className={`h-10 w-10 rounded-full flex items-center justify-center text-sm font-medium ${
-        darkMode ? 'bg-[#006239] text-white' : 'bg-gray-200 text-black'
-      }`}>
+      <div className={`h-10 w-10 rounded-full flex items-center justify-center text-sm font-medium ${darkMode ? 'bg-[#006239] text-white' : 'bg-gray-200 text-black'
+        }`}>
         {member.username?.substring(0, 2).toUpperCase() || 'U'}
       </div>
     );
@@ -2249,11 +2180,10 @@ const TeamMembersModal = ({ isOpen, onClose, teamId, darkMode }) => {
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search by name or email..."
-            className={`w-full rounded-lg px-4 py-2.5 pr-10 text-sm focus:outline-none focus:ring-2 transition-all ${
-              darkMode 
-                ? 'bg-dark-secondary border border-[#171717] text-white focus:ring-blue-500/20 placeholder:text-gray-400' 
+            className={`w-full rounded-lg px-4 py-2.5 pr-10 text-sm focus:outline-none focus:ring-2 transition-all ${darkMode
+                ? 'bg-dark-secondary border border-[#171717] text-white focus:ring-blue-500/20 placeholder:text-gray-400'
                 : 'bg-white border border-gray-200 text-black focus:ring-blue-500/20 placeholder:text-gray-400'
-            }`}
+              }`}
           />
           <div className="absolute right-3 top-1/2 -translate-y-1/2">
             <Search size={16} className="text-gray-400" />
@@ -2272,15 +2202,13 @@ const TeamMembersModal = ({ isOpen, onClose, teamId, darkMode }) => {
             </p>
           </div>
         ) : (
-          <div className={`divide-y ${
-            darkMode ? 'divide-[#171717]' : 'divide-gray-200'
-          }`}>
+          <div className={`divide-y ${darkMode ? 'divide-[#171717]' : 'divide-gray-200'
+            }`}>
             {filteredMembers.map((member) => (
               <div
                 key={member.id}
-                className={`p-4 transition-colors ${
-                  darkMode ? 'hover:bg-[#171717]/50' : 'hover:bg-gray-50'
-                }`}
+                className={`p-4 transition-colors ${darkMode ? 'hover:bg-[#171717]/50' : 'hover:bg-gray-50'
+                  }`}
               >
                 <div className="flex items-center gap-4">
                   {/* Avatar */}
@@ -2289,35 +2217,31 @@ const TeamMembersModal = ({ isOpen, onClose, teamId, darkMode }) => {
                   {/* Member Info */}
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-1">
-                      <p className={`text-sm font-medium truncate ${
-                        darkMode ? 'text-white' : 'text-black'
-                      }`}>
+                      <p className={`text-sm font-medium truncate ${darkMode ? 'text-white' : 'text-black'
+                        }`}>
                         {member.username}
                       </p>
                     </div>
-                    <p className={`text-xs truncate ${
-                      darkMode ? 'text-gray-400' : 'text-gray-500'
-                    }`}>
+                    <p className={`text-xs truncate ${darkMode ? 'text-gray-400' : 'text-gray-500'
+                      }`}>
                       {member.email}
                     </p>
                   </div>
 
                   {/* Role Badge (Read-Only) */}
-                  <span className={`inline-flex items-center px-3 py-1.5 rounded-full text-xs font-medium border ${
-                    getRoleBadgeColor(member.role)
-                  }`}>
+                  <span className={`inline-flex items-center px-3 py-1.5 rounded-full text-xs font-medium border ${getRoleBadgeColor(member.role)
+                    }`}>
                     {member.role}
                   </span>
                 </div>
               </div>
             ))}
-            
+
             {/* Footer Info */}
-            <div className={`text-xs text-center py-3 border-t ${
-              darkMode ? 'text-gray-400 border-[#171717]' : 'text-gray-500 border-gray-200'
-            }`}>
-              {searchQuery 
-                ? `Showing ${filteredMembers.length} of ${members.length} members` 
+            <div className={`text-xs text-center py-3 border-t ${darkMode ? 'text-gray-400 border-[#171717]' : 'text-gray-500 border-gray-200'
+              }`}>
+              {searchQuery
+                ? `Showing ${filteredMembers.length} of ${members.length} members`
                 : `Total ${members.length} team member${members.length !== 1 ? 's' : ''}`
               }
             </div>
@@ -2360,16 +2284,14 @@ const DeleteProjectModal = ({ isOpen, onClose, project, onConfirm, darkMode }) =
     }
   };
 
-  const inputClass = `w-full rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-red-500/50 transition-all ${
-    darkMode ? 'bg-dark-secondary border border-[#171717] text-white' : 'bg-white border border-gray-200 text-black'
-  }`;
+  const inputClass = `w-full rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-red-500/50 transition-all ${darkMode ? 'bg-dark-secondary border border-[#171717] text-white' : 'bg-white border border-gray-200 text-black'
+    }`;
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} title="Delete Project" darkMode={darkMode}>
       <div className="space-y-4">
-        <div className={`p-4 rounded-lg border-2 ${
-          darkMode ? 'bg-red-500/10 border-red-500/30' : 'bg-red-50 border-red-200'
-        }`}>
+        <div className={`p-4 rounded-lg border-2 ${darkMode ? 'bg-red-500/10 border-red-500/30' : 'bg-red-50 border-red-200'
+          }`}>
           <div className="flex items-start gap-3">
             <AlertCircle className="text-red-500 flex-shrink-0 mt-0.5" size={20} />
             <div>
@@ -2403,9 +2325,8 @@ const DeleteProjectModal = ({ isOpen, onClose, project, onConfirm, darkMode }) =
         </div>
 
         {error && (
-          <div className={`p-3 rounded-lg border ${
-            darkMode ? 'bg-red-500/10 border-red-500/30 text-red-400' : 'bg-red-50 border-red-200 text-red-600'
-          }`}>
+          <div className={`p-3 rounded-lg border ${darkMode ? 'bg-red-500/10 border-red-500/30 text-red-400' : 'bg-red-50 border-red-200 text-red-600'
+            }`}>
             <div className="flex items-start gap-2">
               <AlertCircle size={18} className="flex-shrink-0 mt-0.5" />
               <p className="text-sm">{error}</p>
@@ -2418,9 +2339,8 @@ const DeleteProjectModal = ({ isOpen, onClose, project, onConfirm, darkMode }) =
             type="button"
             onClick={onClose}
             disabled={isDeleting}
-            className={`flex-1 px-6 py-3 rounded-lg font-semibold transition-all ${
-              darkMode ? 'bg-[#171717] text-gray-300 hover:bg-[#171717]/70' : 'bg-gray-200/50 text-gray-400 hover:bg-gray-200'
-            } disabled:opacity-50`}
+            className={`flex-1 px-6 py-3 rounded-lg font-semibold transition-all ${darkMode ? 'bg-[#171717] text-gray-300 hover:bg-[#171717]/70' : 'bg-gray-200/50 text-gray-400 hover:bg-gray-200'
+              } disabled:opacity-50`}
           >
             Cancel
           </button>
@@ -2441,13 +2361,12 @@ const DeleteProjectModal = ({ isOpen, onClose, project, onConfirm, darkMode }) =
 const FilterButton = ({ active, onClick, children, darkMode }) => (
   <button
     onClick={onClick}
-    className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
-      active
+    className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${active
         ? 'bg-[#006239] text-white shadow-md'
         : darkMode
-        ? 'bg-[#171717] text-gray-300 hover:bg-gray-700'
-        : 'bg-gray-200/50 text-gray-600 hover:bg-gray-200'
-    }`}
+          ? 'bg-[#171717] text-gray-300 hover:bg-gray-700'
+          : 'bg-gray-200/50 text-gray-600 hover:bg-gray-200'
+      }`}
   >
     {children}
   </button>
@@ -2472,8 +2391,8 @@ const ProjectCard = ({ project, darkMode, onClick, onEdit, onDelete }) => {
   }, [showMenu]);
 
   // Calculate progress percentage
-  const progress = project.total_tasks > 0 
-    ? Math.round((project.completed_tasks / project.total_tasks) * 100) 
+  const progress = project.total_tasks > 0
+    ? Math.round((project.completed_tasks / project.total_tasks) * 100)
     : 0;
 
   // Determine status color
@@ -2487,23 +2406,23 @@ const ProjectCard = ({ project, darkMode, onClick, onEdit, onDelete }) => {
   };
 
   return (
-    <div 
+    <div
       className={`${darkMode ? 'bg-dark-secondary/50 border-[#171717]/50' : 'bg-white border-gray-200 shadow-sm'} border rounded-xl p-5 hover:border-blue-500 transition-all flex flex-col h-full relative group`}
     >
       {/* Project card header with menu */}
       <div className="flex justify-between items-start mb-3">
-        <h3 
+        <h3
           onClick={onClick}
           className={`font-semibold text-lg cursor-pointer hover:text-gray-400 transition-colors ${darkMode ? 'text-white' : 'text-black'}`}
         >
           {project.name}
         </h3>
-        
+
         <div className="flex items-center gap-2">
           <span className={`text-xs font-bold px-2.5 py-1 rounded-full uppercase tracking-wider ${getStatusColor(project.status)}`}>
             {project.status}
           </span>
-          
+
           {/* Actions menu */}
           <div className="relative" ref={menuRef}>
             <button
@@ -2511,18 +2430,16 @@ const ProjectCard = ({ project, darkMode, onClick, onEdit, onDelete }) => {
                 e.stopPropagation();
                 setShowMenu(!showMenu);
               }}
-              className={`p-1.5 rounded-lg opacity-0 group-hover:opacity-100 transition-all ${
-                darkMode ? 'hover:bg-[#171717] text-gray-300' : 'hover:bg-gray-200/50 text-gray-400'
-              } ${showMenu ? 'opacity-100' : ''}`}
+              className={`p-1.5 rounded-lg opacity-0 group-hover:opacity-100 transition-all ${darkMode ? 'hover:bg-[#171717] text-gray-300' : 'hover:bg-gray-200/50 text-gray-400'
+                } ${showMenu ? 'opacity-100' : ''}`}
             >
               <MoreVertical size={16} />
             </button>
 
             {showMenu && (
-              <div 
-                className={`absolute right-0 mt-2 w-40 rounded-lg shadow-lg border z-10 ${
-                  darkMode ? 'bg-dark-secondary border-[#171717]' : 'bg-white border-gray-200'
-                }`}
+              <div
+                className={`absolute right-0 mt-2 w-40 rounded-lg shadow-lg border z-10 ${darkMode ? 'bg-dark-secondary border-[#171717]' : 'bg-white border-gray-200'
+                  }`}
               >
                 <button
                   onClick={(e) => {
@@ -2530,9 +2447,8 @@ const ProjectCard = ({ project, darkMode, onClick, onEdit, onDelete }) => {
                     setShowMenu(false);
                     onEdit(project);
                   }}
-                  className={`w-full flex items-center gap-2 px-4 py-2.5 text-sm transition-colors ${
-                    darkMode ? 'hover:bg-[#171717] text-gray-300' : 'hover:bg-gray-200/50 text-gray-400'
-                  }`}
+                  className={`w-full flex items-center gap-2 px-4 py-2.5 text-sm transition-colors ${darkMode ? 'hover:bg-[#171717] text-gray-300' : 'hover:bg-gray-200/50 text-gray-400'
+                    }`}
                 >
                   <Edit3 size={14} />
                   Edit Project
@@ -2543,9 +2459,8 @@ const ProjectCard = ({ project, darkMode, onClick, onEdit, onDelete }) => {
                     setShowMenu(false);
                     onDelete(project);
                   }}
-                  className={`w-full flex items-center gap-2 px-4 py-2.5 text-sm text-red-500 transition-colors ${
-                    darkMode ? 'hover:bg-red-500/10' : 'hover:bg-red-50'
-                  }`}
+                  className={`w-full flex items-center gap-2 px-4 py-2.5 text-sm text-red-500 transition-colors ${darkMode ? 'hover:bg-red-500/10' : 'hover:bg-red-50'
+                    }`}
                 >
                   <Trash2 size={14} />
                   Delete Project
@@ -2555,8 +2470,8 @@ const ProjectCard = ({ project, darkMode, onClick, onEdit, onDelete }) => {
           </div>
         </div>
       </div>
-      
-      <p 
+
+      <p
         onClick={onClick}
         className={`${darkMode ? 'text-gray-300' : 'text-gray-400'} text-sm mb-6 line-clamp-2 flex-grow cursor-pointer`}
       >
@@ -2577,8 +2492,8 @@ const ProjectCard = ({ project, darkMode, onClick, onEdit, onDelete }) => {
             <span className={`font-medium ${darkMode ? 'text-gray-300' : 'text-black'}`}>{progress}%</span>
           </div>
           <div className={`w-full rounded-full h-1.5 ${darkMode ? 'bg-[#171717]' : 'bg-gray-200'}`}>
-            <div 
-              className="bg-[#006239] h-1.5 rounded-full transition-all duration-500" 
+            <div
+              className="bg-[#006239] h-1.5 rounded-full transition-all duration-500"
               style={{ width: `${progress}%` }}
             ></div>
           </div>
@@ -2715,20 +2630,20 @@ export default function TeamPage() {
   const createProjectMutation = useMutation({
     mutationFn: async (projectData) => {
       const { members, ...projectInfo } = projectData;
-      
+
       // Create the project first
       const result = await createProject(teamId, projectInfo);
       const newProjectId = result.data.id;
-      
+
       // Add members to the project (creator is already added as lead on backend)
       if (members && members.length > 0) {
         await Promise.all(
-          members.map(member => 
+          members.map(member =>
             addProjectMember(newProjectId, member.userId, member.role)
           )
         );
       }
-      
+
       return result;
     },
     onSuccess: () => {
@@ -2798,16 +2713,16 @@ export default function TeamPage() {
   const filteredProjects = projects
     .filter(project => {
       // Search filter
-      if (searchQuery && !project.name.toLowerCase().includes(searchQuery.toLowerCase()) && 
-          !project.description?.toLowerCase().includes(searchQuery.toLowerCase())) {
+      if (searchQuery && !project.name.toLowerCase().includes(searchQuery.toLowerCase()) &&
+        !project.description?.toLowerCase().includes(searchQuery.toLowerCase())) {
         return false;
       }
-      
+
       // Status filter
       if (statusFilter !== 'all' && project.status !== statusFilter) {
         return false;
       }
-      
+
       return true;
     })
     .sort((a, b) => {
@@ -2834,7 +2749,7 @@ export default function TeamPage() {
   return (
     <div className="p-6 md:p-8">
       <div className="max-w-7xl mx-auto">
-        
+
         {/* WELCOME */}
         <div className="mb-8 flex items-start justify-between gap-4">
           <div className="flex-1">
@@ -2850,9 +2765,8 @@ export default function TeamPage() {
           <div className="relative">
             <button
               onClick={() => setShowSettingsMenu(!showSettingsMenu)}
-              className={`p-2.5 rounded-lg transition-colors ${
-                isDarkMode ? 'hover:bg-[#171717] text-gray-300' : 'hover:bg-gray-200/50 text-gray-400'
-              }`}
+              className={`p-2.5 rounded-lg transition-colors ${isDarkMode ? 'hover:bg-[#171717] text-gray-300' : 'hover:bg-gray-200/50 text-gray-400'
+                }`}
               title="Team Settings"
             >
               <Settings size={20} />
@@ -2864,26 +2778,23 @@ export default function TeamPage() {
               const isOwner = currentMember?.role === 'owner';
 
               return (
-                <div className={`absolute right-0 mt-2 w-48 rounded-lg shadow-lg border overflow-hidden z-10 ${
-                  isDarkMode ? 'bg-dark-secondary border-[#171717]' : 'bg-white border-gray-200'
-                }`}>
+                <div className={`absolute right-0 mt-2 w-48 rounded-lg shadow-lg border overflow-hidden z-10 ${isDarkMode ? 'bg-dark-secondary border-[#171717]' : 'bg-white border-gray-200'
+                  }`}>
                   {isOwner ? (
                     // Owner can Edit and Delete team
                     <>
                       <button
                         onClick={() => { setShowEditModal(true); setShowSettingsMenu(false); }}
-                        className={`w-full flex items-center gap-2 px-4 py-2.5 text-sm transition-colors ${
-                          isDarkMode ? 'hover:bg-[#171717] text-gray-300' : 'hover:bg-gray-200/30 text-black'
-                        }`}
+                        className={`w-full flex items-center gap-2 px-4 py-2.5 text-sm transition-colors ${isDarkMode ? 'hover:bg-[#171717] text-gray-300' : 'hover:bg-gray-200/30 text-black'
+                          }`}
                       >
                         <Edit3 size={14} />
                         Edit Team
                       </button>
                       <button
                         onClick={() => { setShowDeleteModal(true); setShowSettingsMenu(false); }}
-                        className={`w-full flex items-center gap-2 px-4 py-2.5 text-sm transition-colors ${
-                          isDarkMode ? 'hover:bg-[#171717] text-red-400' : 'hover:bg-gray-200/30 text-red-600'
-                        }`}
+                        className={`w-full flex items-center gap-2 px-4 py-2.5 text-sm transition-colors ${isDarkMode ? 'hover:bg-[#171717] text-red-400' : 'hover:bg-gray-200/30 text-red-600'
+                          }`}
                       >
                         <Trash2 size={14} />
                         Delete Team
@@ -2896,9 +2807,8 @@ export default function TeamPage() {
                         setShowLeaveModal(true);
                         setShowSettingsMenu(false);
                       }}
-                      className={`w-full flex items-center gap-2 px-4 py-2.5 text-sm transition-colors ${
-                        isDarkMode ? 'hover:bg-[#171717] text-red-400' : 'hover:bg-gray-200/30 text-red-600'
-                      }`}
+                      className={`w-full flex items-center gap-2 px-4 py-2.5 text-sm transition-colors ${isDarkMode ? 'hover:bg-[#171717] text-red-400' : 'hover:bg-gray-200/30 text-red-600'
+                        }`}
                     >
                       <Trash2 size={14} />
                       Leave Team
@@ -2919,25 +2829,24 @@ export default function TeamPage() {
 
         {/* TOP ROW: TEAM MEMBERS & TEAM PROGRESS */}
         <div className="grid md:grid-cols-2 gap-6 mb-8">
-          
+
           {/* TEAM MEMBERS WIDGET */}
           <div className={`${cardBg} border rounded-xl p-5 transition-all`}>
             <div className="flex items-center justify-between mb-4">
               <h3 className={`font-bold ${isDarkMode ? 'text-white' : 'text-black'}`}>Team Members</h3>
               <button
                 onClick={() => setShowInviteMemberModal(true)}
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
-                  isDarkMode 
-                    ? 'bg-[#006239] hover:bg-[#006239]/80 text-white' 
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${isDarkMode
+                    ? 'bg-[#006239] hover:bg-[#006239]/80 text-white'
                     : 'bg-[#006239] hover:bg-[#006239]/90 text-white'
-                }`}
+                  }`}
                 title="Invite a new member"
               >
                 <Plus size={14} />
                 Invite
               </button>
             </div>
-            
+
             {membersLoading ? (
               <div className="text-center py-4">
                 <div className={`inline-block animate-spin rounded-full h-5 w-5 border-b-2 ${isDarkMode ? 'border-gray-400' : 'border-gray-400'}`}></div>
@@ -2978,7 +2887,7 @@ export default function TeamPage() {
                   ))}
                 </div>
                 {members.length > 4 && (
-                  <button 
+                  <button
                     onClick={() => setShowMembersModal(true)}
                     className={`w-full mt-3 py-2 text-sm font-medium border-t transition-colors ${isDarkMode ? 'text-gray-300 hover:text-white border-[#171717]/50' : 'text-gray-400 hover:text-black border-gray-200'}`}
                   >
@@ -2992,7 +2901,7 @@ export default function TeamPage() {
           {/* TEAM PROGRESS WIDGET */}
           <div className={`${cardBg} border rounded-xl p-5 transition-all`}>
             <h3 className={`font-bold mb-4 ${isDarkMode ? 'text-white' : 'text-black'}`}>Team Progress</h3>
-            
+
             {/* Stats Grid */}
             <div className="grid grid-cols-2 gap-4 mb-4">
               <div className={`${isDarkMode ? 'bg-[#171717]/50' : 'bg-gray-200/30'} rounded-lg p-4 text-center`}>
@@ -3023,13 +2932,13 @@ export default function TeamPage() {
                   </span>
                 </div>
                 <div className={`w-full rounded-full h-2 ${isDarkMode ? 'bg-[#171717]' : 'bg-gray-200'}`}>
-                  <div 
-                    className="bg-green-500 h-2 rounded-full transition-all duration-500" 
+                  <div
+                    className="bg-green-500 h-2 rounded-full transition-all duration-500"
                     style={{ width: `${stats.total_tasks > 0 ? (stats.completed_tasks / stats.total_tasks * 100) : 0}%` }}
                   ></div>
                 </div>
               </div>
-              
+
               <div>
                 <div className={`flex justify-between items-center mb-1.5 ${isDarkMode ? 'text-gray-300' : 'text-gray-400'}`}>
                   <span className="text-xs">In Progress</span>
@@ -3038,8 +2947,8 @@ export default function TeamPage() {
                   </span>
                 </div>
                 <div className={`w-full rounded-full h-2 ${isDarkMode ? 'bg-[#171717]' : 'bg-gray-200'}`}>
-                  <div 
-                    className="bg-amber-500 h-2 rounded-full transition-all duration-500" 
+                  <div
+                    className="bg-amber-500 h-2 rounded-full transition-all duration-500"
                     style={{ width: `${stats.total_tasks > 0 ? (stats.in_progress_tasks / stats.total_tasks * 100) : 0}%` }}
                   ></div>
                 </div>
@@ -3051,11 +2960,11 @@ export default function TeamPage() {
 
         {/* PROJECTS SECTION - FULL WIDTH */}
         <div className="space-y-6">
-          
+
           {/* Compact Toolbar - Single Row */}
           <div className={`${cardBg} border rounded-xl p-4`}>
             <div className="flex items-center justify-between gap-4 flex-wrap">
-              
+
               {/* Left Group: Search + Filter Tabs */}
               <div className="flex items-center gap-3 flex-1 min-w-[300px]">
                 {/* Compact Search */}
@@ -3066,11 +2975,10 @@ export default function TeamPage() {
                     placeholder="Search projects..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className={`w-full rounded-lg py-2 pl-9 pr-9 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 transition-all ${
-                      isDarkMode 
-                        ? 'bg-dark-secondary text-white border border-[#171717] placeholder:text-gray-500' 
+                    className={`w-full rounded-lg py-2 pl-9 pr-9 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 transition-all ${isDarkMode
+                        ? 'bg-dark-secondary text-white border border-[#171717] placeholder:text-gray-500'
                         : 'bg-white text-black border border-gray-200 placeholder:text-gray-400'
-                    }`}
+                      }`}
                   />
                   {searchQuery && (
                     <button
@@ -3094,14 +3002,13 @@ export default function TeamPage() {
               {/* Right Group: Sort + Create Button */}
               <div className="flex items-center gap-3">
                 {/* Sort Dropdown (compact) */}
-                <select 
-                  value={sortBy} 
-                  onChange={(e) => setSortBy(e.target.value)} 
-                  className={`rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 transition-all ${
-                    isDarkMode 
-                      ? 'bg-[#171717] text-gray-300 border border-[#171717] hover:bg-gray-700' 
+                <select
+                  value={sortBy}
+                  onChange={(e) => setSortBy(e.target.value)}
+                  className={`rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 transition-all ${isDarkMode
+                      ? 'bg-[#171717] text-gray-300 border border-[#171717] hover:bg-gray-700'
                       : 'bg-gray-200/50 text-gray-600 border border-gray-200 hover:bg-gray-200'
-                  }`}
+                    }`}
                 >
                   <option value="created_at">Sort: Newest</option>
                   <option value="name">Sort: Name</option>
@@ -3112,7 +3019,7 @@ export default function TeamPage() {
                 {(() => {
                   const currentMember = members.find(m => m.user_id === currentUser?.id);
                   const canCreateProject = currentMember?.role === 'owner' || currentMember?.role === 'admin';
-                  
+
                   return canCreateProject ? (
                     <button
                       onClick={() => setShowCreateProjectModal(true)}
@@ -3150,8 +3057,8 @@ export default function TeamPage() {
             <div className={`${cardBg} border rounded-xl p-8 text-center`}>
               <FolderKanban size={48} className={`mx-auto mb-4 ${isDarkMode ? 'text-gray-400' : 'text-gray-300'}`} />
               <p className={`${isDarkMode ? 'text-gray-300' : 'text-gray-400'}`}>
-                {searchQuery || statusFilter !== 'all' 
-                  ? 'No projects match your filters' 
+                {searchQuery || statusFilter !== 'all'
+                  ? 'No projects match your filters'
                   : 'No projects yet in this team'}
               </p>
               {(searchQuery || statusFilter !== 'all') && (
@@ -3166,9 +3073,9 @@ export default function TeamPage() {
           ) : (
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
               {filteredProjects.map((project) => (
-                <ProjectCard 
-                  key={project.id} 
-                  project={project} 
+                <ProjectCard
+                  key={project.id}
+                  project={project}
                   darkMode={isDarkMode}
                   onClick={() => navigate(`/teams/${teamId}/projects/${project.id}`)}
                   onEdit={(proj) => {
@@ -3235,6 +3142,7 @@ export default function TeamPage() {
         teamMembers={members}
         onSubmit={(projectData) => createProjectMutation.mutateAsync(projectData)}
         darkMode={isDarkMode}
+        currentUserId={currentUser?.id}
       />
 
       <EditProjectModal
