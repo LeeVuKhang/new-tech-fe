@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useOutletContext, useParams, useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { z } from 'zod';
@@ -44,7 +44,10 @@ import {
   Calendar,
   Loader2,
   UserCheck,
-  Mail
+  Mail,
+  Pin,
+  ChevronLeft,
+  ChevronRight
 } from 'lucide-react';
 
 /**
@@ -312,10 +315,10 @@ const EditTeamModal = ({ isOpen, onClose, team, onSubmit, darkMode, teamId, quer
   const getInputClass = (fieldName) => {
     const hasError = fieldErrors[fieldName];
     return `w-full rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 transition-all ${hasError
-        ? 'border-2 border-red-500 focus:ring-red-500/50 bg-red-50 dark:bg-red-500/10'
-        : darkMode
-          ? 'bg-dark-secondary border border-[#171717] text-white focus:ring-blue-500/20'
-          : 'bg-white border border-gray-200 text-black focus:ring-blue-500/20'
+      ? 'border-2 border-red-500 focus:ring-red-500/50 bg-red-50 dark:bg-red-500/10'
+      : darkMode
+        ? 'bg-dark-secondary border border-[#171717] text-white focus:ring-blue-500/20'
+        : 'bg-white border border-gray-200 text-black focus:ring-blue-500/20'
       }`;
   };
 
@@ -329,8 +332,8 @@ const EditTeamModal = ({ isOpen, onClose, team, onSubmit, darkMode, teamId, quer
           type="button"
           onClick={() => setActiveTab('general')}
           className={`px-4 py-2.5 text-sm font-medium border-b-2 transition-colors ${activeTab === 'general'
-              ? `border-[#006239] ${darkMode ? 'text-white' : 'text-black'}`
-              : `border-transparent ${darkMode ? 'text-gray-400 hover:text-gray-300' : 'text-gray-500 hover:text-gray-700'}`
+            ? `border-[#006239] ${darkMode ? 'text-white' : 'text-black'}`
+            : `border-transparent ${darkMode ? 'text-gray-400 hover:text-gray-300' : 'text-gray-500 hover:text-gray-700'}`
             }`}
         >
           General
@@ -339,8 +342,8 @@ const EditTeamModal = ({ isOpen, onClose, team, onSubmit, darkMode, teamId, quer
           type="button"
           onClick={() => setActiveTab('members')}
           className={`px-4 py-2.5 text-sm font-medium border-b-2 transition-colors ${activeTab === 'members'
-              ? `border-[#006239] ${darkMode ? 'text-white' : 'text-black'}`
-              : `border-transparent ${darkMode ? 'text-gray-400 hover:text-gray-300' : 'text-gray-500 hover:text-gray-700'}`
+            ? `border-[#006239] ${darkMode ? 'text-white' : 'text-black'}`
+            : `border-transparent ${darkMode ? 'text-gray-400 hover:text-gray-300' : 'text-gray-500 hover:text-gray-700'}`
             }`}
         >
           Members ({members.length})
@@ -463,10 +466,10 @@ const EditTeamModal = ({ isOpen, onClose, team, onSubmit, darkMode, teamId, quer
                     {/* Role Badge */}
                     <span
                       className={`px-2.5 py-1 text-xs font-medium rounded-full ${member.role === 'owner'
-                          ? 'bg-purple-500/20 text-purple-400'
-                          : member.role === 'admin'
-                            ? 'bg-blue-500/20 text-blue-400'
-                            : 'bg-gray-500/20 text-gray-400'
+                        ? 'bg-purple-500/20 text-purple-400'
+                        : member.role === 'admin'
+                          ? 'bg-blue-500/20 text-blue-400'
+                          : 'bg-gray-500/20 text-gray-400'
                         }`}
                     >
                       {member.role}
@@ -479,8 +482,8 @@ const EditTeamModal = ({ isOpen, onClose, team, onSubmit, darkMode, teamId, quer
                         onClick={() => handleRemoveMember(member.user_id)}
                         disabled={removeMemberMutation.isLoading}
                         className={`p-1.5 rounded-lg transition-colors ${darkMode
-                            ? 'hover:bg-red-500/20 text-red-400'
-                            : 'hover:bg-red-50 text-red-600'
+                          ? 'hover:bg-red-500/20 text-red-400'
+                          : 'hover:bg-red-50 text-red-600'
                           } disabled:opacity-50`}
                         title="Remove member"
                       >
@@ -817,8 +820,8 @@ const InviteMemberModal = ({ isOpen, onClose, teamId, darkMode }) => {
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Type to search users..."
               className={`w-full rounded-lg px-4 py-2.5 pr-10 text-sm focus:outline-none focus:ring-2 transition-all ${darkMode
-                  ? 'bg-dark-secondary border border-[#171717] text-white focus:ring-blue-500/20 placeholder:text-gray-400'
-                  : 'bg-white border border-gray-200 text-black focus:ring-blue-500/20 placeholder:text-gray-600'
+                ? 'bg-dark-secondary border border-[#171717] text-white focus:ring-blue-500/20 placeholder:text-gray-400'
+                : 'bg-white border border-gray-200 text-black focus:ring-blue-500/20 placeholder:text-gray-600'
                 }`}
             />
             <div className="absolute right-3 top-1/2 -translate-y-1/2">
@@ -852,14 +855,14 @@ const InviteMemberModal = ({ isOpen, onClose, teamId, darkMode }) => {
                       onClick={() => !isDisabled && setSelectedUser(user)}
                       disabled={isDisabled}
                       className={`w-full p-3 flex items-center gap-3 transition-all text-left ${isDisabled
-                          ? 'cursor-not-allowed'
-                          : isSelected
-                            ? darkMode
-                              ? 'bg-blue-500/20'
-                              : 'bg-blue-100'
-                            : darkMode
-                              ? 'hover:bg-[#171717]'
-                              : 'hover:bg-gray-50'
+                        ? 'cursor-not-allowed'
+                        : isSelected
+                          ? darkMode
+                            ? 'bg-blue-500/20'
+                            : 'bg-blue-100'
+                          : darkMode
+                            ? 'hover:bg-[#171717]'
+                            : 'hover:bg-gray-50'
                         }`}
                     >
                       <div className={`flex items-center gap-3 flex-1 min-w-0 ${isDisabled ? 'opacity-50' : ''}`}>
@@ -891,8 +894,8 @@ const InviteMemberModal = ({ isOpen, onClose, teamId, darkMode }) => {
         {/* Selected User Display */}
         {selectedUser && (
           <div className={`p-3 rounded-lg border ${darkMode
-              ? 'bg-blue-500/10 border-blue-500/30'
-              : 'bg-blue-50 border-blue-200'
+            ? 'bg-blue-500/10 border-blue-500/30'
+            : 'bg-blue-50 border-blue-200'
             }`}>
             <div className="flex items-center gap-3">
               <Mail size={16} className="text-gray-400" />
@@ -923,8 +926,8 @@ const InviteMemberModal = ({ isOpen, onClose, teamId, darkMode }) => {
               value={selectedRole}
               onChange={(e) => setSelectedRole(e.target.value)}
               className={`w-full rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 transition-all ${darkMode
-                  ? 'bg-dark-secondary border border-[#171717] text-white focus:ring-blue-500/20'
-                  : 'bg-white border border-gray-200 text-black focus:ring-blue-500/20'
+                ? 'bg-dark-secondary border border-[#171717] text-white focus:ring-blue-500/20'
+                : 'bg-white border border-gray-200 text-black focus:ring-blue-500/20'
                 }`}
             >
               <option value="member">Member</option>
@@ -1009,8 +1012,8 @@ const PendingInvitationsList = ({ invitations, onRevoke, darkMode }) => {
                 </td>
                 <td className="py-3 px-3">
                   <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${invite.role === 'admin'
-                      ? 'bg-purple-500/10 text-purple-500'
-                      : 'bg-blue-500/10 text-blue-500'
+                    ? 'bg-purple-500/10 text-purple-500'
+                    : 'bg-blue-500/10 text-blue-500'
                     }`}>
                     {invite.role}
                   </span>
@@ -1025,8 +1028,8 @@ const PendingInvitationsList = ({ invitations, onRevoke, darkMode }) => {
                 </td>
                 <td className="py-3 px-3">
                   <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${invite.status === 'pending'
-                      ? 'bg-amber-500/10 text-amber-500'
-                      : 'bg-gray-500/10 text-gray-500'
+                    ? 'bg-amber-500/10 text-amber-500'
+                    : 'bg-gray-500/10 text-gray-500'
                     }`}>
                     {invite.status}
                   </span>
@@ -1035,8 +1038,8 @@ const PendingInvitationsList = ({ invitations, onRevoke, darkMode }) => {
                   <button
                     onClick={() => onRevoke(invite)}
                     className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${darkMode
-                        ? 'bg-red-500/10 text-red-400 hover:bg-red-500/20'
-                        : 'bg-red-50 text-red-600 hover:bg-red-100'
+                      ? 'bg-red-500/10 text-red-400 hover:bg-red-500/20'
+                      : 'bg-red-50 text-red-600 hover:bg-red-100'
                       }`}
                   >
                     Revoke
@@ -1187,10 +1190,10 @@ const CreateProjectModal = ({ isOpen, onClose, teamId, teamMembers, onSubmit, da
   const getInputClass = (fieldName) => {
     const hasError = fieldErrors[fieldName];
     return `w-full rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 transition-all ${hasError
-        ? 'border-2 border-red-500 focus:ring-red-500/50 bg-red-50 dark:bg-red-500/10'
-        : darkMode
-          ? 'bg-dark-secondary border border-[#171717] text-white placeholder-gray-500 focus:ring-blue-500/20'
-          : 'bg-white border border-gray-200 text-black placeholder-gray-500 focus:ring-blue-500/20'
+      ? 'border-2 border-red-500 focus:ring-red-500/50 bg-red-50 dark:bg-red-500/10'
+      : darkMode
+        ? 'bg-dark-secondary border border-[#171717] text-white placeholder-gray-500 focus:ring-blue-500/20'
+        : 'bg-white border border-gray-200 text-black placeholder-gray-500 focus:ring-blue-500/20'
       }`;
   };
 
@@ -1862,10 +1865,10 @@ const EditProjectModal = ({ isOpen, onClose, project, onSubmit, darkMode, teamMe
   const getInputClass = (fieldName) => {
     const hasError = fieldErrors[fieldName];
     return `w-full rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 transition-all ${hasError
-        ? 'border-2 border-red-500 focus:ring-red-500/50 bg-red-50 dark:bg-red-500/10'
-        : darkMode
-          ? 'bg-dark-secondary border border-[#171717] text-white placeholder-gray-500 focus:ring-blue-500/20'
-          : 'bg-white border border-gray-200 text-black placeholder-gray-500 focus:ring-blue-500/20'
+      ? 'border-2 border-red-500 focus:ring-red-500/50 bg-red-50 dark:bg-red-500/10'
+      : darkMode
+        ? 'bg-dark-secondary border border-[#171717] text-white placeholder-gray-500 focus:ring-blue-500/20'
+        : 'bg-white border border-gray-200 text-black placeholder-gray-500 focus:ring-blue-500/20'
       }`;
   };
 
@@ -2181,8 +2184,8 @@ const TeamMembersModal = ({ isOpen, onClose, teamId, darkMode }) => {
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search by name or email..."
             className={`w-full rounded-lg px-4 py-2.5 pr-10 text-sm focus:outline-none focus:ring-2 transition-all ${darkMode
-                ? 'bg-dark-secondary border border-[#171717] text-white focus:ring-blue-500/20 placeholder:text-gray-400'
-                : 'bg-white border border-gray-200 text-black focus:ring-blue-500/20 placeholder:text-gray-400'
+              ? 'bg-dark-secondary border border-[#171717] text-white focus:ring-blue-500/20 placeholder:text-gray-400'
+              : 'bg-white border border-gray-200 text-black focus:ring-blue-500/20 placeholder:text-gray-400'
               }`}
           />
           <div className="absolute right-3 top-1/2 -translate-y-1/2">
@@ -2362,17 +2365,17 @@ const FilterButton = ({ active, onClick, children, darkMode }) => (
   <button
     onClick={onClick}
     className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${active
-        ? 'bg-[#006239] text-white shadow-md'
-        : darkMode
-          ? 'bg-[#171717] text-gray-300 hover:bg-gray-700'
-          : 'bg-gray-200/50 text-gray-600 hover:bg-gray-200'
+      ? 'bg-[#006239] text-white shadow-md'
+      : darkMode
+        ? 'bg-[#171717] text-gray-300 hover:bg-gray-700'
+        : 'bg-gray-200/50 text-gray-600 hover:bg-gray-200'
       }`}
   >
     {children}
   </button>
 );
 
-const ProjectCard = ({ project, darkMode, onClick, onEdit, onDelete }) => {
+const ProjectCard = ({ project, darkMode, onClick, onEdit, onDelete, isPinned, onTogglePin }) => {
   const [showMenu, setShowMenu] = useState(false);
   const menuRef = React.useRef(null);
 
@@ -2407,8 +2410,14 @@ const ProjectCard = ({ project, darkMode, onClick, onEdit, onDelete }) => {
 
   return (
     <div
-      className={`${darkMode ? 'bg-dark-secondary/50 border-[#171717]/50' : 'bg-white border-gray-200 shadow-sm'} border rounded-xl p-5 hover:border-blue-500 transition-all flex flex-col h-full relative group`}
+      className={`${darkMode ? 'bg-dark-secondary/50 border-[#171717]/50' : 'bg-white border-gray-200 shadow-sm'} ${isPinned ? 'ring-2 ring-amber-500/50' : ''} border rounded-xl p-5 hover:border-blue-500 transition-all flex flex-col h-full relative group`}
     >
+      {/* Pinned indicator */}
+      {isPinned && (
+        <div className="absolute -top-2 -right-2 bg-amber-500 text-white p-1.5 rounded-full shadow-lg z-10">
+          <Pin size={12} className="fill-current" />
+        </div>
+      )}
       {/* Project card header with menu */}
       <div className="flex justify-between items-start mb-3">
         <h3
@@ -2441,6 +2450,19 @@ const ProjectCard = ({ project, darkMode, onClick, onEdit, onDelete }) => {
                 className={`absolute right-0 mt-2 w-40 rounded-lg shadow-lg border z-10 ${darkMode ? 'bg-dark-secondary border-[#171717]' : 'bg-white border-gray-200'
                   }`}
               >
+                {/* Pin/Unpin option */}
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setShowMenu(false);
+                    onTogglePin(project.id);
+                  }}
+                  className={`w-full flex items-center gap-2 px-4 py-2.5 text-sm transition-colors ${darkMode ? 'hover:bg-[#171717] text-amber-400' : 'hover:bg-amber-50 text-amber-600'
+                    }`}
+                >
+                  <Pin size={14} className={isPinned ? 'fill-current' : ''} />
+                  {isPinned ? 'Unpin Project' : 'Pin Project'}
+                </button>
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
@@ -2542,6 +2564,43 @@ export default function TeamPage() {
   const [showMembersModal, setShowMembersModal] = useState(false);
   const [selectedProject, setSelectedProject] = useState(null);
   const [projectMenuOpen, setProjectMenuOpen] = useState(null);
+
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const PROJECTS_PER_PAGE = 6;
+
+  // Pinned projects state (stored in localStorage)
+  const [pinnedProjects, setPinnedProjects] = useState(() => {
+    try {
+      const saved = localStorage.getItem(`team_${teamId}_pinned_projects`);
+      return saved ? JSON.parse(saved) : [];
+    } catch {
+      return [];
+    }
+  });
+
+  // Persist pinned projects to localStorage
+  useEffect(() => {
+    if (teamId) {
+      localStorage.setItem(`team_${teamId}_pinned_projects`, JSON.stringify(pinnedProjects));
+    }
+  }, [pinnedProjects, teamId]);
+
+  // Reset page when filters change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery, statusFilter]);
+
+  // Toggle pin project handler
+  const togglePinProject = (projectId) => {
+    setPinnedProjects(prev => {
+      if (prev.includes(projectId)) {
+        return prev.filter(id => id !== projectId);
+      } else {
+        return [...prev, projectId];
+      }
+    });
+  };
 
   // Fetch team data
   const { data: teamData, isLoading: teamLoading, error: teamError } = useQuery({
@@ -2726,6 +2785,14 @@ export default function TeamPage() {
       return true;
     })
     .sort((a, b) => {
+      // PRIORITY: Pinned projects always come first
+      const aIsPinned = pinnedProjects.includes(a.id);
+      const bIsPinned = pinnedProjects.includes(b.id);
+
+      if (aIsPinned && !bIsPinned) return -1;
+      if (!aIsPinned && bIsPinned) return 1;
+
+      // Within same pin status, apply regular sorting
       if (sortBy === 'created_at') {
         return new Date(b.created_at) - new Date(a.created_at);
       } else if (sortBy === 'name') {
@@ -2737,6 +2804,13 @@ export default function TeamPage() {
       }
       return 0;
     });
+
+  // Pagination calculations
+  const totalPages = Math.ceil(filteredProjects.length / PROJECTS_PER_PAGE);
+  const paginatedProjects = filteredProjects.slice(
+    (currentPage - 1) * PROJECTS_PER_PAGE,
+    currentPage * PROJECTS_PER_PAGE
+  );
 
   // Build stats array for display
   const STATS = [
@@ -2837,8 +2911,8 @@ export default function TeamPage() {
               <button
                 onClick={() => setShowInviteMemberModal(true)}
                 className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${isDarkMode
-                    ? 'bg-[#006239] hover:bg-[#006239]/80 text-white'
-                    : 'bg-[#006239] hover:bg-[#006239]/90 text-white'
+                  ? 'bg-[#006239] hover:bg-[#006239]/80 text-white'
+                  : 'bg-[#006239] hover:bg-[#006239]/90 text-white'
                   }`}
                 title="Invite a new member"
               >
@@ -2976,8 +3050,8 @@ export default function TeamPage() {
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     className={`w-full rounded-lg py-2 pl-9 pr-9 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 transition-all ${isDarkMode
-                        ? 'bg-dark-secondary text-white border border-[#171717] placeholder:text-gray-500'
-                        : 'bg-white text-black border border-gray-200 placeholder:text-gray-400'
+                      ? 'bg-dark-secondary text-white border border-[#171717] placeholder:text-gray-500'
+                      : 'bg-white text-black border border-gray-200 placeholder:text-gray-400'
                       }`}
                   />
                   {searchQuery && (
@@ -3006,8 +3080,8 @@ export default function TeamPage() {
                   value={sortBy}
                   onChange={(e) => setSortBy(e.target.value)}
                   className={`rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 transition-all ${isDarkMode
-                      ? 'bg-[#171717] text-gray-300 border border-[#171717] hover:bg-gray-700'
-                      : 'bg-gray-200/50 text-gray-600 border border-gray-200 hover:bg-gray-200'
+                    ? 'bg-[#171717] text-gray-300 border border-[#171717] hover:bg-gray-700'
+                    : 'bg-gray-200/50 text-gray-600 border border-gray-200 hover:bg-gray-200'
                     }`}
                 >
                   <option value="created_at">Sort: Newest</option>
@@ -3071,24 +3145,76 @@ export default function TeamPage() {
               )}
             </div>
           ) : (
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {filteredProjects.map((project) => (
-                <ProjectCard
-                  key={project.id}
-                  project={project}
-                  darkMode={isDarkMode}
-                  onClick={() => navigate(`/teams/${teamId}/projects/${project.id}`)}
-                  onEdit={(proj) => {
-                    setSelectedProject(proj);
-                    setShowEditProjectModal(true);
-                  }}
-                  onDelete={(proj) => {
-                    setSelectedProject(proj);
-                    setShowDeleteProjectModal(true);
-                  }}
-                />
-              ))}
-            </div>
+            <>
+              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {paginatedProjects.map((project) => (
+                  <ProjectCard
+                    key={project.id}
+                    project={project}
+                    darkMode={isDarkMode}
+                    onClick={() => navigate(`/teams/${teamId}/projects/${project.id}`)}
+                    onEdit={(proj) => {
+                      setSelectedProject(proj);
+                      setShowEditProjectModal(true);
+                    }}
+                    onDelete={(proj) => {
+                      setSelectedProject(proj);
+                      setShowDeleteProjectModal(true);
+                    }}
+                    isPinned={pinnedProjects.includes(project.id)}
+                    onTogglePin={togglePinProject}
+                  />
+                ))}
+              </div>
+
+              {/* Pagination Controls */}
+              {totalPages > 1 && (
+                <div className="flex items-center justify-center gap-2 mt-6">
+                  {/* Previous Button */}
+                  <button
+                    onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                    disabled={currentPage === 1}
+                    className={`p-2 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${isDarkMode ? 'hover:bg-[#171717] text-gray-300' : 'hover:bg-gray-200 text-gray-600'
+                      }`}
+                  >
+                    <ChevronLeft size={20} />
+                  </button>
+
+                  {/* Page Numbers */}
+                  <div className="flex items-center gap-1">
+                    {Array.from({ length: totalPages }, (_, i) => i + 1).map(pageNum => (
+                      <button
+                        key={pageNum}
+                        onClick={() => setCurrentPage(pageNum)}
+                        className={`min-w-[36px] h-9 px-3 rounded-lg text-sm font-medium transition-colors ${currentPage === pageNum
+                            ? 'bg-[#006239] text-white'
+                            : isDarkMode
+                              ? 'hover:bg-[#171717] text-gray-300'
+                              : 'hover:bg-gray-200 text-gray-600'
+                          }`}
+                      >
+                        {pageNum}
+                      </button>
+                    ))}
+                  </div>
+
+                  {/* Next Button */}
+                  <button
+                    onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                    disabled={currentPage === totalPages}
+                    className={`p-2 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${isDarkMode ? 'hover:bg-[#171717] text-gray-300' : 'hover:bg-gray-200 text-gray-600'
+                      }`}
+                  >
+                    <ChevronRight size={20} />
+                  </button>
+
+                  {/* Page Info */}
+                  <span className={`ml-3 text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                    Page {currentPage} of {totalPages}
+                  </span>
+                </div>
+              )}
+            </>
           )}
         </div>
 
