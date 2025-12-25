@@ -30,7 +30,7 @@ import { useAuth } from './hooks/useAuth';
 import {
   getSocket,
   joinTeam,
-  leaveTeam,
+  leaveTeam as leaveTeamSocket,
   onProjectCreated,
   onProjectUpdated,
   onProjectDeleted,
@@ -2677,7 +2677,7 @@ export default function TeamPage() {
 
     // Cleanup on unmount
     return () => {
-      leaveTeam(teamId);
+      leaveTeamSocket(teamId);
       unsubCreated();
       unsubUpdated();
       unsubDeleted();

@@ -77,22 +77,87 @@ const canEditTasks = (userRole) => {
 /**
  * PROJECT-SPECIFIC COMPONENTS
  */
-const TaskStatusBadge = ({ status }) => {
+const TaskStatusBadge = ({ status, taskId, onStatusChange, canEdit, darkMode }) => {
+  const [showDropdown, setShowDropdown] = useState(false);
+  const dropdownRef = React.useRef(null);
+
   const statusConfig = {
-    todo: { label: 'To Do', icon: Circle, color: 'text-slate-500 bg-slate-500/10' },
-    in_progress: { label: 'In Progress', icon: PlayCircle, color: 'text-blue-500 bg-blue-500/10' },
-    review: { label: 'Review', icon: Eye, color: 'text-purple-500 bg-purple-500/10' },
-    done: { label: 'Done', icon: CheckCircle2, color: 'text-green-500 bg-green-500/10' },
+    todo: { label: 'To Do', icon: Circle, color: 'text-slate-500 bg-slate-500/10', hoverColor: 'hover:bg-slate-500/20' },
+    in_progress: { label: 'In Progress', icon: PlayCircle, color: 'text-blue-500 bg-blue-500/10', hoverColor: 'hover:bg-blue-500/20' },
+    review: { label: 'Review', icon: Eye, color: 'text-purple-500 bg-purple-500/10', hoverColor: 'hover:bg-purple-500/20' },
+    done: { label: 'Done', icon: CheckCircle2, color: 'text-green-500 bg-green-500/10', hoverColor: 'hover:bg-green-500/20' },
   };
 
   const config = statusConfig[status] || statusConfig.todo;
   const Icon = config.icon;
 
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setShowDropdown(false);
+      }
+    };
+    if (showDropdown) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [showDropdown]);
+
+  const handleStatusSelect = (newStatus) => {
+    if (onStatusChange && newStatus !== status) {
+      onStatusChange(taskId, newStatus);
+    }
+    setShowDropdown(false);
+  };
+
+  // If not editable, render as static badge
+  if (!canEdit || !onStatusChange) {
+    return (
+      <span className={`inline-flex items-center gap-1.5 text-xs font-bold px-2.5 py-1 rounded-full uppercase tracking-wider ${config.color}`}>
+        <Icon size={12} />
+        {config.label}
+      </span>
+    );
+  }
+
+  // Editable: render as clickable dropdown trigger
   return (
-    <span className={`inline-flex items-center gap-1.5 text-xs font-bold px-2.5 py-1 rounded-full uppercase tracking-wider ${config.color}`}>
-      <Icon size={12} />
-      {config.label}
-    </span>
+    <div className="relative" ref={dropdownRef}>
+      <button
+        onClick={() => setShowDropdown(!showDropdown)}
+        className={`inline-flex items-center gap-1.5 text-xs font-bold px-2.5 py-1 rounded-full uppercase tracking-wider transition-all cursor-pointer ${config.color} ${config.hoverColor} ring-offset-1 hover:ring-2 hover:ring-current/30`}
+        title="Click to change status"
+      >
+        <Icon size={12} />
+        {config.label}
+        <ChevronDown size={10} className={`ml-0.5 transition-transform ${showDropdown ? 'rotate-180' : ''}`} />
+      </button>
+
+      {/* Dropdown Menu */}
+      {showDropdown && (
+        <div className={`absolute left-0 top-full mt-1 w-40 rounded-lg shadow-xl border overflow-hidden z-20 ${darkMode ? 'bg-dark-secondary border-[#171717]' : 'bg-white border-gray-200'}`}>
+          {Object.entries(statusConfig).map(([key, cfg]) => {
+            const StatusIcon = cfg.icon;
+            const isActive = key === status;
+            return (
+              <button
+                key={key}
+                onClick={() => handleStatusSelect(key)}
+                className={`w-full flex items-center gap-2 px-3 py-2 text-sm transition-colors ${isActive
+                  ? darkMode ? 'bg-[#171717]' : 'bg-gray-100'
+                  : darkMode ? 'hover:bg-[#171717]' : 'hover:bg-gray-50'
+                  } ${cfg.color.split(' ')[0]}`}
+              >
+                <StatusIcon size={14} />
+                <span className="font-medium">{cfg.label}</span>
+                {isActive && <CheckCircle2 size={12} className="ml-auto text-green-500" />}
+              </button>
+            );
+          })}
+        </div>
+      )}
+    </div>
   );
 };
 
@@ -115,7 +180,7 @@ const PriorityBadge = ({ priority }) => {
   );
 };
 
-const TaskCard = ({ task, darkMode, userRole, onEdit, onDelete, isPinned, onTogglePin }) => {
+const TaskCard = ({ task, darkMode, userRole, onEdit, onDelete, isPinned, onTogglePin, onStatusChange }) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const [showActions, setShowActions] = useState(false);
   const daysUntilDue = getDaysUntilDue(task.due_date);
@@ -140,7 +205,13 @@ const TaskCard = ({ task, darkMode, userRole, onEdit, onDelete, isPinned, onTogg
             {sanitizeText(task.title)}
           </h3>
           <div className="flex flex-wrap items-center gap-2">
-            <TaskStatusBadge status={task.status} />
+            <TaskStatusBadge
+              status={task.status}
+              taskId={task.id}
+              onStatusChange={onStatusChange}
+              canEdit={canEdit}
+              darkMode={darkMode}
+            />
             <PriorityBadge priority={task.priority} />
           </div>
         </div>
@@ -294,7 +365,7 @@ const TaskCard = ({ task, darkMode, userRole, onEdit, onDelete, isPinned, onTogg
           </div>
         </div>
 
-        {/* Updated Date (Subtle Footer) */}
+        {/* Updated Date Footer */}
         <div className="flex justify-end pt-1">
           <span className={`text-xs ${darkMode ? 'text-gray-500' : 'text-gray-400'} opacity-60`}>
             Updated {formatDate(task.updated_at)}
@@ -304,6 +375,7 @@ const TaskCard = ({ task, darkMode, userRole, onEdit, onDelete, isPinned, onTogg
     </div>
   );
 };
+
 
 const FilterButton = ({ active, children, onClick, darkMode }) => (
   <button
@@ -1088,6 +1160,25 @@ export default function ProjectPage() {
     overdue: tasks.filter(t => getDaysUntilDue(t.due_date) !== null && getDaysUntilDue(t.due_date) < 0 && t.status !== 'done').length,
   };
 
+  // Quick status change handler for hover actions
+  const handleQuickStatusChange = async (taskId, newStatus) => {
+    try {
+      const response = await projectApi.updateTask(projectId, taskId, { status: newStatus });
+      if (response.success) {
+        // Update local state immediately for better UX
+        setTasks(prev => prev.map(t =>
+          t.id === taskId ? { ...t, status: newStatus } : t
+        ));
+        toast.success(`Task moved to ${newStatus.replace('_', ' ')}`);
+      } else {
+        toast.error(response.message || 'Failed to update status');
+      }
+    } catch (err) {
+      console.error('Quick status change error:', err);
+      toast.error('Failed to update task status');
+    }
+  };
+
   const handleEditTask = (task) => {
     setSelectedTask(task);
     setShowEditModal(true);
@@ -1463,6 +1554,7 @@ export default function ProjectPage() {
                           onDelete={handleDeleteTask}
                           isPinned={pinnedTasks.includes(task.id)}
                           onTogglePin={togglePinTask}
+                          onStatusChange={handleQuickStatusChange}
                         />
                       ))}
                     </div>
