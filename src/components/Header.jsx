@@ -24,7 +24,7 @@ export default function Header({ isDarkMode, toggleDarkMode }) {
   const queryClient = useQueryClient();
   const notificationRef = useRef(null);
   const avatarRef = useRef(null);
-  
+
   // Get current authenticated user
   const { user: currentUser, isLoading: isUserLoading } = useAuth();
 
@@ -52,12 +52,14 @@ export default function Header({ isDarkMode, toggleDarkMode }) {
   }, [notificationsData]);
 
   // Listen for real-time notifications from n8n via Socket.io
+  // Uses interval to retry socket connection since Layout may not have initialized it yet
   useEffect(() => {
-    const socket = getSocket();
-    if (!socket) return;
+    let socket = null;
+    let checkInterval = null;
+    let isCleanedUp = false;
 
     const handleNotification = (notification) => {
-      console.log('📬 New notification:', notification);
+      console.log('New notification:', notification);
       // Add new notification to the top, avoid duplicates
       setNotifications(prev => {
         const exists = prev.some(n => n.id === notification.id);
@@ -66,17 +68,46 @@ export default function Header({ isDarkMode, toggleDarkMode }) {
       });
     };
 
-    socket.on('notification', handleNotification);
+    const setupListener = () => {
+      socket = getSocket();
+      if (socket?.connected) {
+        console.log('Socket connected, setting up notification listener');
+        socket.on('notification', handleNotification);
+        if (checkInterval) {
+          clearInterval(checkInterval);
+          checkInterval = null;
+        }
+        return true;
+      }
+      return false;
+    };
+
+    // Try immediately
+    if (!setupListener() && !isCleanedUp) {
+      // If not connected, retry every 500ms
+      console.log('Socket not ready, waiting for connection...');
+      checkInterval = setInterval(() => {
+        if (isCleanedUp) {
+          clearInterval(checkInterval);
+          return;
+        }
+        setupListener();
+      }, 500);
+    }
 
     return () => {
-      socket.off('notification', handleNotification);
+      isCleanedUp = true;
+      if (checkInterval) clearInterval(checkInterval);
+      if (socket) {
+        socket.off('notification', handleNotification);
+      }
     };
   }, []);
 
   // Split notifications: invitation notifications vs alert notifications
   const invitationNotifications = notifications.filter(n => n.resource_type === 'team' && n.title === 'Team Invitation');
   const alertNotifications = notifications.filter(n => !(n.resource_type === 'team' && n.title === 'Team Invitation'));
-  
+
   // Calculate total unread count
   const unreadInvitationNotifs = invitationNotifications.filter(n => !n.is_read).length;
   const unreadAlertNotifs = alertNotifications.filter(n => !n.is_read).length;
@@ -86,7 +117,7 @@ export default function Header({ isDarkMode, toggleDarkMode }) {
   const markAsRead = useCallback(async (notificationId) => {
     try {
       // Optimistic update
-      setNotifications(prev => 
+      setNotifications(prev =>
         prev.map(n => n.id === notificationId ? { ...n, is_read: true, read_at: new Date().toISOString() } : n)
       );
       // Call API
@@ -94,7 +125,7 @@ export default function Header({ isDarkMode, toggleDarkMode }) {
     } catch (error) {
       console.error('Failed to mark notification as read:', error);
       // Revert on error
-      setNotifications(prev => 
+      setNotifications(prev =>
         prev.map(n => n.id === notificationId ? { ...n, is_read: false, read_at: null } : n)
       );
     }
@@ -105,7 +136,7 @@ export default function Header({ isDarkMode, toggleDarkMode }) {
     try {
       const unreadIds = notifications.filter(n => !n.is_read).map(n => n.id);
       if (unreadIds.length === 0) return;
-      
+
       // Optimistic update
       setNotifications(prev => prev.map(n => ({ ...n, is_read: true, read_at: new Date().toISOString() })));
       // Call API (null = mark all as read)
@@ -172,17 +203,17 @@ export default function Header({ isDarkMode, toggleDarkMode }) {
   const handleLogout = () => {
     // Disconnect socket
     disconnectSocket();
-    
+
     // Clear notifications state
     setNotifications([]);
-    
+
     // Invalidate all queries
     queryClient.clear();
-    
+
     // Clear local storage
     localStorage.removeItem('authToken');
     localStorage.removeItem('user');
-    
+
     // Navigate to login
     navigate('/');
   };
@@ -205,9 +236,9 @@ export default function Header({ isDarkMode, toggleDarkMode }) {
       <div className="absolute left-1/2 -translate-x-1/2 hidden md:block">
         <div className="relative group">
           <Search className={`absolute left-3 top-1/2 -translate-y-1/2 transition-colors ${isDarkMode ? 'text-gray-500 group-focus-within:text-gray-400' : 'text-gray-500 group-focus-within:text-gray-700'}`} size={16} />
-          <input 
-            type="text" 
-            placeholder="Search..." 
+          <input
+            type="text"
+            placeholder="Search..."
             className={`w-80 rounded-lg py-2 pl-9 pr-4 text-sm focus:outline-none focus:ring-2 transition-all ${isDarkMode ? 'focus:ring-[#1F1F1F] focus:border-[#1F1F1F]' : 'focus:ring-gray-400 focus:border-gray-400'} ${inputBg}`}
           />
         </div>
@@ -215,7 +246,7 @@ export default function Header({ isDarkMode, toggleDarkMode }) {
 
       {/* Right: Actions */}
       <div className="flex items-center space-x-2 sm:space-x-4">
-        <button 
+        <button
           onClick={toggleDarkMode}
           className={`p-2 rounded-full transition-colors ${isDarkMode ? 'text-gray-400 hover:text-white hover:bg-[#1F1F1F]' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'}`}
           title={isDarkMode ? "Switch to Light Mode" : "Switch to Dark Mode"}
@@ -225,7 +256,7 @@ export default function Header({ isDarkMode, toggleDarkMode }) {
 
         {/* Notification Bell with Dropdown */}
         <div className="relative" ref={notificationRef}>
-          <button 
+          <button
             onClick={() => setNotificationOpen(!isNotificationOpen)}
             className={`relative p-2 transition-colors ${isDarkMode ? 'text-gray-400 hover:text-white' : 'text-gray-600 hover:text-gray-900'}`}
           >
@@ -239,9 +270,8 @@ export default function Header({ isDarkMode, toggleDarkMode }) {
 
           {/* Notification Dropdown */}
           {isNotificationOpen && (
-            <div className={`absolute right-0 mt-2 w-96 rounded-xl shadow-lg border overflow-hidden z-50 ${
-              isDarkMode ? 'bg-dark-secondary border-[#171717]' : 'bg-white border-gray-200'
-            }`}>
+            <div className={`absolute right-0 mt-2 w-96 rounded-xl shadow-lg border overflow-hidden z-50 ${isDarkMode ? 'bg-dark-secondary border-[#171717]' : 'bg-white border-gray-200'
+              }`}>
               {/* Header with Tabs */}
               <div className={`px-4 py-3 border-b ${isDarkMode ? 'border-[#171717]' : 'border-gray-200'}`}>
                 <div className="flex items-center justify-between mb-2">
@@ -249,7 +279,7 @@ export default function Header({ isDarkMode, toggleDarkMode }) {
                     Notifications
                   </h3>
                   {notifications.length > 0 && (
-                    <button 
+                    <button
                       onClick={markAllAsRead}
                       className={`text-xs ${isDarkMode ? 'text-blue-400 hover:text-blue-300' : 'text-blue-600 hover:text-blue-800'}`}
                     >
@@ -267,17 +297,15 @@ export default function Header({ isDarkMode, toggleDarkMode }) {
                     <button
                       key={tab.key}
                       onClick={() => setActiveTab(tab.key)}
-                      className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-colors ${
-                        activeTab === tab.key
-                          ? isDarkMode ? 'bg-[#171717] text-white' : 'bg-gray-200 text-gray-900'
-                          : isDarkMode ? 'text-gray-400 hover:text-white' : 'text-gray-500 hover:text-gray-900'
-                      }`}
+                      className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-colors ${activeTab === tab.key
+                        ? isDarkMode ? 'bg-[#171717] text-white' : 'bg-gray-200 text-gray-900'
+                        : isDarkMode ? 'text-gray-400 hover:text-white' : 'text-gray-500 hover:text-gray-900'
+                        }`}
                     >
                       {tab.label}
                       {tab.count > 0 && (
-                        <span className={`ml-1.5 px-1.5 py-0.5 text-xs rounded-full ${
-                          isDarkMode ? 'bg-red-500/20 text-red-400' : 'bg-red-100 text-red-600'
-                        }`}>
+                        <span className={`ml-1.5 px-1.5 py-0.5 text-xs rounded-full ${isDarkMode ? 'bg-red-500/20 text-red-400' : 'bg-red-100 text-red-600'
+                          }`}>
                           {tab.count}
                         </span>
                       )}
@@ -291,28 +319,26 @@ export default function Header({ isDarkMode, toggleDarkMode }) {
                 {((activeTab === 'all' && invitations.length === 0 && notifications.length === 0) ||
                   (activeTab === 'invitations' && invitations.length === 0 && invitationNotifications.length === 0) ||
                   (activeTab === 'notifications' && alertNotifications.length === 0)) && (
-                  <div className={`p-6 text-center ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
-                    <Bell size={32} className="mx-auto mb-2 opacity-50" />
-                    <p className="text-sm">No {activeTab === 'all' ? 'notifications' : activeTab}</p>
-                  </div>
-                )}
+                    <div className={`p-6 text-center ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                      <Bell size={32} className="mx-auto mb-2 opacity-50" />
+                      <p className="text-sm">No {activeTab === 'all' ? 'notifications' : activeTab}</p>
+                    </div>
+                  )}
 
                 {/* Invitation Notifications */}
                 {(activeTab === 'all' || activeTab === 'invitations') && invitationNotifications.map((notif) => {
                   const style = NOTIFICATION_STYLES[notif.type] || NOTIFICATION_STYLES.info;
                   const IconComponent = style.icon;
                   return (
-                    <div 
+                    <div
                       key={`notif-${notif.id}`}
                       onClick={() => markAsRead(notif.id)}
-                      className={`p-4 border-b cursor-pointer transition-colors ${
-                        isDarkMode ? 'border-[#171717] hover:bg-gray-800' : 'border-gray-100 hover:bg-gray-50'
-                      } ${!notif.is_read ? (isDarkMode ? 'bg-blue-500/5' : 'bg-blue-50/50') : ''}`}
+                      className={`p-4 border-b cursor-pointer transition-colors ${isDarkMode ? 'border-[#171717] hover:bg-gray-800' : 'border-gray-100 hover:bg-gray-50'
+                        } ${!notif.is_read ? (isDarkMode ? 'bg-blue-500/5' : 'bg-blue-50/50') : ''}`}
                     >
                       <div className="flex items-start gap-3">
-                        <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${
-                          isDarkMode ? `bg-${style.color}-500/20` : `bg-${style.color}-100`
-                        }`}>
+                        <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${isDarkMode ? `bg-${style.color}-500/20` : `bg-${style.color}-100`
+                          }`}>
                           <IconComponent size={16} className={`text-${style.color}-500`} />
                         </div>
                         <div className="flex-1 min-w-0">
@@ -346,17 +372,15 @@ export default function Header({ isDarkMode, toggleDarkMode }) {
                   const style = NOTIFICATION_STYLES[notif.type] || NOTIFICATION_STYLES.info;
                   const IconComponent = style.icon;
                   return (
-                    <div 
+                    <div
                       key={notif.id}
                       onClick={() => markAsRead(notif.id)}
-                      className={`p-4 border-b cursor-pointer transition-colors ${
-                        isDarkMode ? 'border-[#171717] hover:bg-gray-800' : 'border-gray-100 hover:bg-gray-50'
-                      } ${!notif.is_read ? (isDarkMode ? 'bg-blue-500/5' : 'bg-blue-50/50') : ''}`}
+                      className={`p-4 border-b cursor-pointer transition-colors ${isDarkMode ? 'border-[#171717] hover:bg-gray-800' : 'border-gray-100 hover:bg-gray-50'
+                        } ${!notif.is_read ? (isDarkMode ? 'bg-blue-500/5' : 'bg-blue-50/50') : ''}`}
                     >
                       <div className="flex items-start gap-3">
-                        <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${
-                          isDarkMode ? `bg-${style.color}-500/20` : `bg-${style.color}-100`
-                        }`}>
+                        <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${isDarkMode ? `bg-${style.color}-500/20` : `bg-${style.color}-100`
+                          }`}>
                           <IconComponent size={16} className={`text-${style.color}-500`} />
                         </div>
                         <div className="flex-1 min-w-0">
@@ -387,96 +411,90 @@ export default function Header({ isDarkMode, toggleDarkMode }) {
 
                 {/* Team Invitations */}
                 {(activeTab === 'all' || activeTab === 'invitations') && invitations.map((invite) => (
-                    <div 
-                      key={invite.id}
-                      className={`p-4 border-b transition-colors ${
-                        isDarkMode ? 'border-[#171717] hover:bg-gray-800' : 'border-gray-100 hover:bg-gray-50'
+                  <div
+                    key={invite.id}
+                    className={`p-4 border-b transition-colors ${isDarkMode ? 'border-[#171717] hover:bg-gray-800' : 'border-gray-100 hover:bg-gray-50'
                       }`}
-                    >
-                      <div className="flex items-start gap-3">
-                        {/* Inviter Avatar */}
-                        <div className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 ${
-                          isDarkMode ? 'bg-[rgb(119,136,115)]' : 'bg-[rgb(210,220,182)]'
+                  >
+                    <div className="flex items-start gap-3">
+                      {/* Inviter Avatar */}
+                      <div className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 ${isDarkMode ? 'bg-[rgb(119,136,115)]' : 'bg-[rgb(210,220,182)]'
                         }`}>
-                          <span className={`text-sm font-medium ${
-                            isDarkMode ? 'text-white' : 'text-[rgb(60,68,58)]'
+                        <span className={`text-sm font-medium ${isDarkMode ? 'text-white' : 'text-[rgb(60,68,58)]'
                           }`}>
-                            {invite.inviter_name?.substring(0, 2).toUpperCase() || 'TM'}
+                          {invite.inviter_name?.substring(0, 2).toUpperCase() || 'TM'}
+                        </span>
+                      </div>
+
+                      {/* Invitation Info */}
+                      <div className="flex-1 min-w-0">
+                        <p className={`text-sm mb-1 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                          <span className="font-semibold">{invite.inviter_name || 'Someone'}</span> invited you to join
+                        </p>
+                        <p className={`text-sm font-bold mb-1 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                          {invite.team_name}
+                        </p>
+                        <div className="flex items-center gap-2 text-xs">
+                          <span className={`inline-flex items-center px-2 py-0.5 rounded-full ${invite.role === 'admin'
+                            ? 'bg-purple-500/10 text-purple-500'
+                            : 'bg-blue-500/10 text-blue-500'
+                            }`}>
+                            {invite.role}
+                          </span>
+                          <span className={isDarkMode ? 'text-gray-500' : 'text-gray-400'}>•</span>
+                          <span className={`flex items-center gap-1 ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`}>
+                            <Clock size={12} />
+                            {new Date(invite.created_at).toLocaleDateString('en-US', {
+                              month: 'short',
+                              day: 'numeric'
+                            })}
                           </span>
                         </div>
 
-                        {/* Invitation Info */}
-                        <div className="flex-1 min-w-0">
-                          <p className={`text-sm mb-1 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
-                            <span className="font-semibold">{invite.inviter_name || 'Someone'}</span> invited you to join
-                          </p>
-                          <p className={`text-sm font-bold mb-1 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-                            {invite.team_name}
-                          </p>
-                          <div className="flex items-center gap-2 text-xs">
-                            <span className={`inline-flex items-center px-2 py-0.5 rounded-full ${
-                              invite.role === 'admin'
-                                ? 'bg-purple-500/10 text-purple-500'
-                                : 'bg-blue-500/10 text-blue-500'
-                            }`}>
-                              {invite.role}
-                            </span>
-                            <span className={isDarkMode ? 'text-gray-500' : 'text-gray-400'}>•</span>
-                            <span className={`flex items-center gap-1 ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`}>
-                              <Clock size={12} />
-                              {new Date(invite.created_at).toLocaleDateString('en-US', { 
-                                month: 'short', 
-                                day: 'numeric' 
-                              })}
-                            </span>
-                          </div>
-
-                          {/* Action Buttons */}
-                          <div className="flex gap-2 mt-3">
-                            <button
-                              onClick={() => acceptMutation.mutate(invite.token)}
-                              disabled={acceptMutation.isPending || declineMutation.isPending}
-                              className={`flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium transition-colors ${
-                                isDarkMode
-                                  ? 'bg-green-500/10 text-green-400 hover:bg-green-500/20'
-                                  : 'bg-green-50 text-green-600 hover:bg-green-100'
+                        {/* Action Buttons */}
+                        <div className="flex gap-2 mt-3">
+                          <button
+                            onClick={() => acceptMutation.mutate(invite.token)}
+                            disabled={acceptMutation.isPending || declineMutation.isPending}
+                            className={`flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium transition-colors ${isDarkMode
+                              ? 'bg-green-500/10 text-green-400 hover:bg-green-500/20'
+                              : 'bg-green-50 text-green-600 hover:bg-green-100'
                               } disabled:opacity-50 disabled:cursor-not-allowed`}
-                            >
-                              <Check size={14} />
-                              {acceptMutation.isPending ? 'Accepting...' : 'Accept'}
-                            </button>
-                            <button
-                              onClick={() => declineMutation.mutate(invite.token)}
-                              disabled={acceptMutation.isPending || declineMutation.isPending}
-                              className={`flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium transition-colors ${
-                                isDarkMode
-                                  ? 'bg-red-500/10 text-red-400 hover:bg-red-500/20'
-                                  : 'bg-red-50 text-red-600 hover:bg-red-100'
+                          >
+                            <Check size={14} />
+                            {acceptMutation.isPending ? 'Accepting...' : 'Accept'}
+                          </button>
+                          <button
+                            onClick={() => declineMutation.mutate(invite.token)}
+                            disabled={acceptMutation.isPending || declineMutation.isPending}
+                            className={`flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium transition-colors ${isDarkMode
+                              ? 'bg-red-500/10 text-red-400 hover:bg-red-500/20'
+                              : 'bg-red-50 text-red-600 hover:bg-red-100'
                               } disabled:opacity-50 disabled:cursor-not-allowed`}
-                            >
-                              <X size={14} />
-                              {declineMutation.isPending ? 'Declining...' : 'Decline'}
-                            </button>
-                          </div>
+                          >
+                            <X size={14} />
+                            {declineMutation.isPending ? 'Declining...' : 'Decline'}
+                          </button>
                         </div>
                       </div>
                     </div>
-                  ))}
+                  </div>
+                ))}
               </div>
             </div>
           )}
         </div>
-        
+
         <div className={`h-8 w-[1px] mx-2 ${isDarkMode ? 'bg-[#1F1F1F]' : 'bg-gray-200'}`}></div>
 
         <div className="relative" ref={avatarRef}>
-          <button 
+          <button
             onClick={() => setDropdownOpen(!isDropdownOpen)}
             className={`h-10 w-10 rounded-full border-2 flex items-center justify-center overflow-hidden transition-all hover:ring-2 ${isDarkMode ? 'bg-dark-secondary border-[#171717] hover:ring-[#1F1F1F]' : 'bg-gray-100 border-gray-300 hover:ring-gray-400 shadow-sm'}`}
           >
             {currentUser?.avatar_url ? (
-              <img 
-                src={currentUser.avatar_url} 
+              <img
+                src={currentUser.avatar_url}
                 alt={currentUser.username || 'User'}
                 className="w-full h-full object-cover"
                 onError={(e) => {
@@ -485,8 +503,8 @@ export default function Header({ isDarkMode, toggleDarkMode }) {
                 }}
               />
             ) : null}
-            <User 
-              size={20} 
+            <User
+              size={20}
               className={isDarkMode ? 'text-gray-400' : 'text-gray-600'}
               style={{ display: currentUser?.avatar_url ? 'none' : 'block' }}
             />
@@ -511,8 +529,8 @@ export default function Header({ isDarkMode, toggleDarkMode }) {
                   </>
                 )}
               </div>
-              
-              <button 
+
+              <button
                 onClick={() => {
                   setDropdownOpen(false);
                   navigate('/my-tasks');
@@ -522,8 +540,8 @@ export default function Header({ isDarkMode, toggleDarkMode }) {
                 <FileText size={16} />
                 <span className="text-sm font-medium">My Tasks</span>
               </button>
-              
-              <button 
+
+              <button
                 onClick={() => {
                   setDropdownOpen(false);
                   navigate('/profile');
@@ -533,8 +551,8 @@ export default function Header({ isDarkMode, toggleDarkMode }) {
                 <User size={16} />
                 <span className="text-sm font-medium">Profile Settings</span>
               </button>
-              
-              <button 
+
+              <button
                 onClick={() => {
                   setDropdownOpen(false);
                   navigate('/help');
@@ -544,9 +562,9 @@ export default function Header({ isDarkMode, toggleDarkMode }) {
                 <HelpCircle size={16} />
                 <span className="text-sm font-medium">Help & Support</span>
               </button>
-              
+
               <div className={`border-t ${isDarkMode ? 'border-gray-800' : 'border-gray-200'}`}>
-                <button 
+                <button
                   onClick={handleLogout}
                   className={`w-full flex items-center space-x-3 px-4 py-3 transition-colors ${isDarkMode ? 'hover:bg-gray-800 text-red-400' : 'hover:bg-gray-100 text-red-600'}`}
                 >
