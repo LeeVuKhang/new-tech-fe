@@ -70,40 +70,7 @@ export default function Dashboard() {
     description: ''
   });
 
-  // Fetch teams from backend, fallback to localStorage/mock if API fails
-  React.useEffect(() => {
-    let mounted = true;
-
-    async function loadTeams() {
-      try {
-        const res = await teamApi.getUserTeams();
-        if (!mounted) return;
-        const apiTeams = (res.data || []).map((t) => ({
-          id: t.id,
-          name: t.name,
-          membersCount: t.total_members || 1,
-          activeProjects: t.project_count || 0,
-          members: ['YOU'],
-          description: t.description || ''
-        }));
-
-        setTeams(apiTeams.length ? apiTeams : TEAMS);
-        try { localStorage.setItem('teams', JSON.stringify(apiTeams.length ? apiTeams : TEAMS)); } catch(e) { /* ignore */ }
-      } catch (err) {
-        // If API fails, try localStorage and finally the mock TEAMS
-        console.error('Failed to fetch teams:', err);
-        const savedTeams = localStorage.getItem('teams');
-        setTeams(savedTeams ? JSON.parse(savedTeams) : TEAMS);
-      } finally {
-        setIsLoadingTeams(false);
-      }
-    }
-
-    loadTeams();
-    return () => { mounted = false; };
-  }, []);
-
-  // Save teams to localStorage whenever it changes
+  // Fetch teams from backend
   React.useEffect(() => {
     const fetchTeams = async () => {
       try {
@@ -174,14 +141,12 @@ export default function Dashboard() {
       const teamForUI = {
         id: created.id,
         name: created.name,
-        membersCount: 1,
-        activeProjects: 0,
-        members: ['YOU'],
-        description: created.description || ''
+        description: created.description || '',
+        role: 'owner',
+        project_count: 0
       };
 
       setTeams(prev => [...prev, teamForUI]);
-      try { localStorage.setItem('teams', JSON.stringify([...teams, teamForUI])); } catch(e) { /* ignore */ }
 
       // Invalidate sidebar teams cache to refresh "My Teams" list
       queryClient.invalidateQueries({ queryKey: ['userTeams'] });
