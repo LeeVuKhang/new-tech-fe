@@ -13,6 +13,10 @@ import ChatPage from './ChatPage.jsx';
 import MyTasksPage from './MyTasksPage.jsx';
 import ProfileSetting from './ProfileSetting.jsx';
 import HelpSupport from './HelpSupport.jsx';
+import AdminRoute from './components/AdminRoute.jsx';
+import AdminLayout from './AdminLayout.jsx';
+import AdminDashboard from './AdminDashboard.jsx';
+import AdminUsersPage from './AdminUsersPage.jsx';
 
 function App() {
   return (
@@ -56,9 +60,17 @@ function App() {
           <Route path="/teams/:teamId/projects/:projectId" element={<ProjectPage />} />
           <Route path="/help" element={<HelpSupport />} />
         </Route>
+        {/* Admin Portal - Protected by AdminRoute guard */}
+        <Route element={<AdminRoute />}>
+          <Route element={<AdminLayout />}>
+            <Route path="/admin" element={<AdminDashboard />} />
+            <Route path="/admin/users" element={<AdminUsersPage />} />
+          </Route>
+        </Route>
       </Routes>
     </BrowserRouter>
   );
 }
 
 export default App
+
