@@ -17,6 +17,7 @@ import AdminRoute from './components/AdminRoute.jsx';
 import AdminLayout from './AdminLayout.jsx';
 import AdminDashboard from './AdminDashboard.jsx';
 import AdminUsersPage from './AdminUsersPage.jsx';
+import AdminAuditLogsPage from './AdminAuditLogsPage.jsx';
 
 function App() {
   return (
@@ -65,6 +66,7 @@ function App() {
           <Route element={<AdminLayout />}>
             <Route path="/admin" element={<AdminDashboard />} />
             <Route path="/admin/users" element={<AdminUsersPage />} />
+            <Route path="/admin/audit-logs" element={<AdminAuditLogsPage />} />
           </Route>
         </Route>
       </Routes>
