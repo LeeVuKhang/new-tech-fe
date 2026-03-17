@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient, keepPreviousData } from '@tanstack/react-query';
 import { fetchUsers, updateUserRole, deleteUser } from './services/adminApi';
 import { useAuth } from './hooks/useAuth';
@@ -29,43 +29,90 @@ function RoleBadge({ role }) {
 function RoleSelectDropdown({ currentRole, userId, currentUserId }) {
   const queryClient = useQueryClient();
   const isSelf = userId === currentUserId;
+  const [pendingRole, setPendingRole] = useState(null); // stores the intended new role
 
   const mutation = useMutation({
     mutationFn: ({ userId, role }) => updateUserRole(userId, role),
     onSuccess: (data) => {
       toast.success(data.message || 'Role updated');
       queryClient.invalidateQueries({ queryKey: ['adminUsers'] });
+      setPendingRole(null);
     },
     onError: (error) => {
       toast.error(error.response?.data?.message || 'Failed to update role');
+      setPendingRole(null);
     },
   });
 
   const handleChange = (e) => {
     const newRole = e.target.value;
     if (newRole === currentRole) return;
+    setPendingRole(newRole); // open the confirm modal
+  };
 
-    if (!confirm(`Change this user's role from "${currentRole}" to "${newRole}"?`)) {
-      e.target.value = currentRole;
-      return;
-    }
+  const handleConfirm = () => {
+    mutation.mutate({ userId, role: pendingRole });
+  };
 
-    mutation.mutate({ userId, role: newRole });
+  const handleCancel = () => {
+    setPendingRole(null);
   };
 
   return (
-    <select
-      value={currentRole}
-      onChange={handleChange}
-      disabled={isSelf || mutation.isPending}
-      className={`bg-gray-800 border border-gray-700 text-sm rounded-lg px-2.5 py-1.5 text-gray-300 focus:ring-1 focus:ring-amber-500/50 focus:border-amber-500 transition-all ${
-        isSelf ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer hover:border-gray-600'
-      } ${mutation.isPending ? 'animate-pulse' : ''}`}
-      title={isSelf ? 'Cannot change your own role' : 'Change system role'}
-    >
-      <option value="user">user</option>
-      <option value="admin">admin</option>
-    </select>
+    <>
+      <select
+        value={currentRole}
+        onChange={handleChange}
+        disabled={isSelf || mutation.isPending}
+        className={`bg-gray-800 border border-gray-700 text-sm rounded-lg px-2.5 py-1.5 text-gray-300 focus:ring-1 focus:ring-amber-500/50 focus:border-amber-500 transition-all ${
+          isSelf ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer hover:border-gray-600'
+        } ${mutation.isPending ? 'animate-pulse' : ''}`}
+        title={isSelf ? 'Cannot change your own role' : 'Change system role'}
+      >
+        <option value="user">user</option>
+        <option value="admin">admin</option>
+      </select>
+
+      {/* Role Change Confirmation Modal */}
+      {pendingRole && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
+          <div className="bg-gray-900 border border-gray-800 rounded-2xl p-6 max-w-sm w-full mx-4 shadow-2xl">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-10 h-10 rounded-full bg-amber-500/10 flex items-center justify-center">
+                <Shield size={20} className="text-amber-400" />
+              </div>
+              <div>
+                <h3 className="text-white font-semibold">Change Role</h3>
+                <p className="text-gray-500 text-xs">This will update the user's system access</p>
+              </div>
+            </div>
+
+            <p className="text-gray-400 text-sm mb-5">
+              Change role from{' '}
+              <span className="text-white font-medium">"{currentRole}"</span>
+              {' '}to{' '}
+              <span className="text-amber-400 font-medium">"{pendingRole}"</span>?
+            </p>
+
+            <div className="flex gap-3">
+              <button
+                onClick={handleCancel}
+                className="flex-1 px-4 py-2.5 rounded-xl bg-gray-800 text-gray-300 hover:bg-gray-700 transition-colors text-sm font-medium"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleConfirm}
+                disabled={mutation.isPending}
+                className="flex-1 px-4 py-2.5 rounded-xl bg-amber-500 text-white hover:bg-amber-600 transition-colors text-sm font-medium disabled:opacity-50"
+              >
+                {mutation.isPending ? 'Updating...' : 'Confirm'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </>
   );
 }
 
@@ -142,10 +189,19 @@ function DeleteUserButton({ userId, username, currentUserId }) {
 export default function AdminUsersPage() {
   const { user: currentUser } = useAuth();
   const [page, setPage] = useState(1);
-  const [search, setSearch] = useState('');
   const [searchInput, setSearchInput] = useState('');
+  const [search, setSearch] = useState('');
   const [roleFilter, setRoleFilter] = useState('');
   const limit = 20;
+
+  // Debounce: fire search 400ms after user stops typing
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setSearch(searchInput);
+      setPage(1); // reset to first page on new search
+    }, 400);
+    return () => clearTimeout(timer); // cleanup on each keystroke
+  }, [searchInput]);
 
   const { data, isLoading, isError } = useQuery({
     queryKey: ['adminUsers', { page, search, role: roleFilter }],
@@ -158,6 +214,7 @@ export default function AdminUsersPage() {
 
   const handleSearch = (e) => {
     e.preventDefault();
+    // Allow instant search on Enter (bypass the debounce)
     setSearch(searchInput);
     setPage(1);
   };
