@@ -54,5 +54,6 @@ export const useAuth = () => {
     isLoading,
     isError,
     error,
+    isAdmin: user?.system_role === 'admin',  // UI convenience only — real auth is server-side
   };
 };

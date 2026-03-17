@@ -26,6 +26,7 @@ export default function Layout() {
     if (location.pathname === '/my-tasks') return 'my-tasks';
     if (location.pathname.includes('/chat')) return 'chat';
     if (location.pathname.includes('/project')) return 'projects';
+    if (location.pathname.startsWith('/admin')) return 'admin';
     return '';
   };
 

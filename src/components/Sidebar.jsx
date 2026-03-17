@@ -1,8 +1,9 @@
 import { useState } from 'react';
-import { LayoutDashboard, FolderKanban, Users, Settings, MessageSquare, Zap, Folder, CheckSquare, ChevronDown } from 'lucide-react';
+import { LayoutDashboard, FolderKanban, Users, Settings, MessageSquare, Zap, Folder, CheckSquare, ChevronDown, Shield } from 'lucide-react';
 import { Link, useParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { getUserTeams } from '../services/projectApi';
+import { useAuth } from '../hooks/useAuth';
 import SidebarItem from './SidebarItem';
 
 // Maximum teams to display in sidebar before showing "See more"
@@ -11,6 +12,7 @@ const MAX_VISIBLE_TEAMS = 4;
 export default function Sidebar({ darkMode, activePage }) {
   const bgSidebar = darkMode ? 'bg-dark-secondary border-[#171717]' : 'bg-white border-gray-200 shadow-sm';
   const { teamId } = useParams();
+  const { isAdmin } = useAuth();
 
   // Fetch user's teams
   const { data: teamsData, isLoading: teamsLoading } = useQuery({
@@ -73,6 +75,20 @@ export default function Sidebar({ darkMode, activePage }) {
         {/* <SidebarItem icon={FolderKanban} label="Projects" active={activePage === 'projects'} darkMode={darkMode} />
         <SidebarItem icon={Users} label="Team Members" darkMode={darkMode} />
         <SidebarItem icon={Settings} label="Settings" darkMode={darkMode} /> */}
+
+        {/* Admin Portal Link - only visible to system admins */}
+        {isAdmin && (
+          <Link to="/admin" className={`w-full flex items-center px-3 py-3 rounded-lg transition-all duration-200 group/item relative ${
+            activePage === 'admin'
+              ? darkMode
+                ? 'bg-[#171717] text-white' 
+                : 'bg-gray-200 text-gray-900'
+              : `${darkMode ? 'text-gray-400 hover:bg-[#1F1F1F] hover:text-gray-200' : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'}`
+          }`}>
+            <Shield size={20} className="flex-shrink-0 text-amber-500" />
+            <span className="ml-3 font-medium text-sm opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap overflow-hidden">Admin Portal</span>
+          </Link>
+        )}
 
         {/* Divider */}
         <div className={`my-4 mx-4 border-t transition-colors duration-300 ${darkMode ? 'border-[#171717]' : 'border-gray-200'}`}></div>
