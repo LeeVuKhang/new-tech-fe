@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient, keepPreviousData } from '@tanstack/react-query';
 import { fetchUsers, updateUserRole, deleteUser } from './services/adminApi';
 import { useAuth } from './hooks/useAuth';
 import { Search, ChevronLeft, ChevronRight, Shield, User, Trash2, AlertTriangle, X } from 'lucide-react';
@@ -13,7 +13,6 @@ import toast from 'react-hot-toast';
 // Role badge styling
 const roleBadges = {
   admin: { bg: 'bg-amber-500/10', text: 'text-amber-400', border: 'border-amber-500/20' },
-  manager: { bg: 'bg-violet-500/10', text: 'text-violet-400', border: 'border-violet-500/20' },
   user: { bg: 'bg-gray-500/10', text: 'text-gray-400', border: 'border-gray-500/20' },
 };
 
@@ -66,7 +65,6 @@ function RoleSelectDropdown({ currentRole, userId, currentUserId }) {
     >
       <option value="user">user</option>
       <option value="admin">admin</option>
-      <option value="manager">manager</option>
     </select>
   );
 }
@@ -152,7 +150,7 @@ export default function AdminUsersPage() {
   const { data, isLoading, isError } = useQuery({
     queryKey: ['adminUsers', { page, search, role: roleFilter }],
     queryFn: () => fetchUsers({ page, limit, search, role: roleFilter }),
-    keepPreviousData: true,
+    placeholderData: keepPreviousData,  // v5 API: keeps previous page data visible while loading next page
   });
 
   const users = data?.data?.users || [];
@@ -202,7 +200,6 @@ export default function AdminUsersPage() {
           <option value="">All Roles</option>
           <option value="user">user</option>
           <option value="admin">admin</option>
-          <option value="manager">manager</option>
         </select>
 
         {/* Clear Filters */}

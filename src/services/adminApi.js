@@ -41,7 +41,7 @@ export const fetchUserById = async (userId) => {
 /**
  * Update a user's system role
  * @param {number} userId
- * @param {string} role - 'user' | 'admin' | 'manager'
+ * @param {string} role - 'user' | 'admin'
  */
 export const updateUserRole = async (userId, role) => {
   const response = await adminAxios.patch(`/users/${userId}/role`, { role });
