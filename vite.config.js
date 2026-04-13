@@ -111,5 +111,11 @@ export default defineConfig({
       console.warn('No SSL certs found — Vite will run in HTTP mode');
       return false;
     })(),
+    headers: {
+      'Strict-Transport-Security': 'max-age=31536000; includeSubDomains; preload',
+      'X-Content-Type-Options': 'nosniff',
+      'X-Frame-Options': 'DENY',
+      'Content-Security-Policy': "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https:; connect-src 'self' https://localhost:5000 wss://localhost:5000 http://localhost:5000 ws://localhost:5000 https://new-tech-be.onrender.com wss://new-tech-be.onrender.com",
+    },
   },
 })
