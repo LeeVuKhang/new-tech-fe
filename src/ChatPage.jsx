@@ -72,6 +72,34 @@ const ALLOWED_FILE_TYPES = [
   'audio/mpeg', 'audio/wav', 'audio/ogg'
 ];
 
+const escapeRegExp = (value) => {
+  return String(value).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+};
+
+const highlightSearchMatch = (content, query) => {
+  const normalizedContent = typeof content === 'string' ? content : String(content ?? '');
+  const normalizedQuery = query.trim();
+
+  if (!normalizedQuery) {
+    return [<React.Fragment key="full-content">{normalizedContent}</React.Fragment>];
+  }
+
+  const escapedQuery = escapeRegExp(normalizedQuery);
+  if (!escapedQuery) {
+    return [<React.Fragment key="full-content">{normalizedContent}</React.Fragment>];
+  }
+
+  const regex = new RegExp(`(${escapedQuery})`, 'gi');
+  const parts = normalizedContent.split(regex);
+  const lowerQuery = normalizedQuery.toLowerCase();
+
+  return parts.map((part, index) => (
+    part.toLowerCase() === lowerQuery
+      ? <mark key={`${part}-${index}`} className="bg-yellow-300 dark:bg-yellow-600">{part}</mark>
+      : <React.Fragment key={`${part}-${index}`}>{part}</React.Fragment>
+  ));
+};
+
 /**
  * Helper: Extract clean filename from S3 URL
  * Removes timestamp prefix (e.g., "1734567890123-abc123-filename.pdf" -> "filename.pdf")
@@ -1791,11 +1819,6 @@ export default function ChatPage() {
                     Found {searchResults.length} {searchResults.length === 1 ? 'message' : 'messages'}
                   </p>
                   {searchResults.map(msg => {
-                    const highlightedContent = msg.content.replace(
-                      new RegExp(`(${searchQuery})`, 'gi'),
-                      '<mark class="bg-yellow-300 dark:bg-yellow-600">$1</mark>'
-                    );
-
                     return (
                       <div
                         key={msg.id}
@@ -1846,8 +1869,9 @@ export default function ChatPage() {
                             </div>
                             <div
                               className={`text-sm ${textPrimary} break-words`}
-                              dangerouslySetInnerHTML={{ __html: highlightedContent }}
-                            />
+                            >
+                              {highlightSearchMatch(msg.content, searchQuery)}
+                            </div>
                           </div>
                         </div>
                       </div>

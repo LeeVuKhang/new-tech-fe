@@ -1,11 +1,6 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import { VitePWA } from 'vite-plugin-pwa'
-import fs from 'fs'
-import path from 'path'
-import { fileURLToPath } from 'url'
-
-const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
 // https://vite.dev/config/
 export default defineConfig({
@@ -95,22 +90,4 @@ export default defineConfig({
       }
     })
   ],
-
-  // ========== HTTPS Configuration ==========
-  server: {
-    https: (() => {
-      const keyPath = path.resolve(__dirname, '..', 'server', 'certs', 'localhost-key.pem')
-      const certPath = path.resolve(__dirname, '..', 'server', 'certs', 'localhost-cert.pem')
-
-      if (fs.existsSync(keyPath) && fs.existsSync(certPath)) {
-        return {
-          key: fs.readFileSync(keyPath),
-          cert: fs.readFileSync(certPath),
-        }
-      }
-      console.warn('No SSL certs found — Vite will run in HTTP mode')
-      return false
-    })(),
-  },
 })
-
