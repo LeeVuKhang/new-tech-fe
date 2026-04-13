@@ -115,7 +115,7 @@ export default defineConfig({
       'Strict-Transport-Security': 'max-age=31536000; includeSubDomains; preload',
       'X-Content-Type-Options': 'nosniff',
       'X-Frame-Options': 'DENY',
-      'Content-Security-Policy': "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https://new-tech-be.onrender.com; connect-src 'self' https://localhost:5000 wss://localhost:5000 https://new-tech-be.onrender.com;",
+      'Content-Security-Policy': "default-src 'self'; script-src 'self'; style-src 'self' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https://new-tech-be.onrender.com; connect-src 'self' https://localhost:5000 wss://localhost:5000 https://new-tech-be.onrender.com;",
     },
   },
 })
