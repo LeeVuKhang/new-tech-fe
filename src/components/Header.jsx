@@ -59,7 +59,40 @@ export default function Header({ isDarkMode, toggleDarkMode }) {
     let isCleanedUp = false;
 
     const handleNotification = (notification) => {
-      console.log('📬 New notification:', notification);
+      console.log('New notification:', notification);
+
+      // Show elegant toast for the new notification
+      toast.custom((t) => (
+        <div
+          className={`${t.visible ? 'animate-enter' : 'animate-leave'
+            } max-w-md w-full bg-white dark:bg-dark-secondary shadow-lg rounded-lg pointer-events-auto flex ring-1 ring-black ring-opacity-5`}
+        >
+          <div className="flex-1 w-0 p-4">
+            <div className="flex items-start">
+              <div className="flex-shrink-0 pt-0.5">
+                <Bell className="h-6 w-6 text-blue-500" />
+              </div>
+              <div className="ml-3 flex-1">
+                <p className="text-sm font-medium text-gray-900 dark:text-white">
+                  {notification.title}
+                </p>
+                <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
+                  {notification.message}
+                </p>
+              </div>
+            </div>
+          </div>
+          <div className="flex border-l border-gray-200 dark:border-gray-700">
+            <button
+              onClick={() => toast.dismiss(t.id)}
+              className="w-full border border-transparent rounded-none rounded-r-lg p-4 flex items-center justify-center text-sm font-medium text-gray-600 hover:text-gray-500 dark:text-gray-400 dark:hover:text-gray-300 focus:outline-none"
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      ), { duration: 5000 });
+
       // Add new notification to the top, avoid duplicates
       setNotifications(prev => {
         const exists = prev.some(n => n.id === notification.id);
@@ -71,6 +104,7 @@ export default function Header({ isDarkMode, toggleDarkMode }) {
     // Handler for real-time team invitations
     const handleNewInvitation = (invitation) => {
       console.log('📨 New invitation received:', invitation);
+      toast.success(`You have been invited to team: ${invitation.team_name}`);
       // Invalidate the invitations query to refetch from server
       // This ensures the invitation list stays in sync
       queryClient.invalidateQueries({ queryKey: ['userInvitations'] });

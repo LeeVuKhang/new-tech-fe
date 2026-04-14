@@ -8,7 +8,9 @@ import { io } from 'socket.io-client';
  * The token is automatically sent via withCredentials option
  */
 
-const SOCKET_URL = import.meta.env.VITE_API_URL || 'https://new-tech-be.onrender.com';
+// Derive SOCKET_URL from VITE_API_BASE_URL (removing /api/v1) or use fallback
+const API_BASE = import.meta.env.VITE_API_BASE_URL || 'https://new-tech-be.onrender.com/api/v1';
+const SOCKET_URL = import.meta.env.VITE_API_URL || API_BASE.replace(/\/api\/v[0-9]+$/, '');
 
 let socket = null;
 

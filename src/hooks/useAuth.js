@@ -1,4 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
+import { useEffect } from 'react';
+import { initSocket } from '../services/socketService';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://new-tech-be.onrender.com/api/v1';
 
@@ -26,19 +28,6 @@ const fetchCurrentUser = async () => {
 /**
  * Custom hook to get current authenticated user
  * Uses React Query for caching and automatic refetching
- * 
- * @returns {{
- *   user: Object | undefined,
- *   isLoading: boolean,
- *   isError: boolean,
- *   error: Error | null
- * }}
- * 
- * @example
- * const { user, isLoading, isError } = useAuth();
- * if (isLoading) return <div>Loading...</div>;
- * if (isError) return <div>Please login</div>;
- * return <div>Hello {user.username}</div>;
  */
 export const useAuth = () => {
   const { data: user, isLoading, isError, error } = useQuery({
@@ -48,6 +37,13 @@ export const useAuth = () => {
     retry: false, // Don't retry on 401 (unauthenticated)
     refetchOnWindowFocus: true, // Refetch when user comes back to tab
   });
+
+  // Ensure socket connection persists any time user is authenticated
+  useEffect(() => {
+    if (user && !isError) {
+      initSocket();
+    }
+  }, [user, isError]);
 
   return {
     user,

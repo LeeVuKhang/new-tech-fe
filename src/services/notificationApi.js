@@ -7,7 +7,7 @@
 
 import { io } from 'socket.io-client';
 
-const API_URL = import.meta.env.VITE_API_URL || 'https://new-tech-be.onrender.com';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://new-tech-be.onrender.com/api/v1';
 
 /**
  * Notification API functions
@@ -25,7 +25,7 @@ export const notificationApi = {
       ...(unreadOnly && { unreadOnly: 'true' }),
     });
 
-    const response = await fetch(`${API_URL}/api/v1/notifications?${queryParams}`, {
+    const response = await fetch(`${API_BASE_URL}/notifications?${queryParams}`, {
       credentials: 'include',
     });
 
@@ -41,7 +41,7 @@ export const notificationApi = {
    * @returns {Promise<number>} Unread count
    */
   getUnreadCount: async () => {
-    const response = await fetch(`${API_URL}/api/v1/notifications/unread-count`, {
+    const response = await fetch(`${API_BASE_URL}/notifications/unread-count`, {
       credentials: 'include',
     });
 
@@ -59,7 +59,7 @@ export const notificationApi = {
    * @returns {Promise<Object>} Result
    */
   markAsRead: async (notificationIds = null) => {
-    const response = await fetch(`${API_URL}/api/v1/notifications/read`, {
+    const response = await fetch(`${API_BASE_URL}/notifications/read`, {
       method: 'POST',
       credentials: 'include',
       headers: {
@@ -81,7 +81,7 @@ export const notificationApi = {
    * @returns {Promise<Object>} Result
    */
   deleteNotification: async (notificationId) => {
-    const response = await fetch(`${API_URL}/api/v1/notifications/${notificationId}`, {
+    const response = await fetch(`${API_BASE_URL}/notifications/${notificationId}`, {
       method: 'DELETE',
       credentials: 'include',
     });
@@ -162,7 +162,7 @@ export const NOTIFICATION_TYPES = {
  * @returns {Promise<{success: boolean, data: Array}>}
  */
 export async function getUserInvitations() {
-  const response = await fetch(`${API_URL}/api/v1/user/invitations`, {
+  const response = await fetch(`${API_BASE_URL}/user/invitations`, {
     credentials: 'include',
   });
 
@@ -180,7 +180,7 @@ export async function getUserInvitations() {
  * @returns {Promise<{success: boolean, data: object}>}
  */
 export async function getInvitationPreview(token) {
-  const response = await fetch(`${API_URL}/api/v1/invitations/preview?token=${encodeURIComponent(token)}`, {
+  const response = await fetch(`${API_BASE_URL}/invitations/preview?token=${encodeURIComponent(token)}`, {
     credentials: 'include',
   });
 
@@ -198,7 +198,7 @@ export async function getInvitationPreview(token) {
  * @returns {Promise<{success: boolean, message: string, data: object}>}
  */
 export async function acceptInvitation(token) {
-  const response = await fetch(`${API_URL}/api/v1/invitations/accept`, {
+  const response = await fetch(`${API_BASE_URL}/invitations/accept`, {
     method: 'POST',
     credentials: 'include',
     headers: {
@@ -221,7 +221,7 @@ export async function acceptInvitation(token) {
  * @returns {Promise<{success: boolean, message: string}>}
  */
 export async function declineInvitation(token) {
-  const response = await fetch(`${API_URL}/api/v1/invitations/decline`, {
+  const response = await fetch(`${API_BASE_URL}/invitations/decline`, {
     method: 'POST',
     credentials: 'include',
     headers: {
